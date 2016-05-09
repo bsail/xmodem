@@ -9,7 +9,7 @@
 TEST_F(XModemTests, XMODEM_INIT)
 {
   EXPECT_EQ(true, xmodem_init());
-  EXPECT_EQ(true, xmodem_process());
+  EXPECT_EQ(true, xmodem_process(1));
   EXPECT_EQ(true, xmodem_cleanup());
 
 }
