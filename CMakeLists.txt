@@ -4,7 +4,7 @@ project(xmodem)
 set(LIB_XMODEM 0)
 set(LIB_XMODEM 1)
 
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 
 if(!TARGET_BUILD)
 if(APPLE)

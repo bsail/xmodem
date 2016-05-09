@@ -9,7 +9,20 @@
 TEST_F(XModemTests, XMODEM_INIT)
 {
   EXPECT_EQ(true, xmodem_init());
-  EXPECT_EQ(true, xmodem_process(1));
+  EXPECT_EQ(XMODEM_INITIAL, xmodem_state());
+  EXPECT_EQ(true, xmodem_process(0));
+  EXPECT_EQ(XMODEM_SEND_REQUEST_FOR_TRANSFER, xmodem_state());
+  EXPECT_EQ(true, xmodem_process(2));
+  EXPECT_EQ(XMODEM_WAIT_FOR_TRANSFER_ACK, xmodem_state());
+  EXPECT_EQ(true, xmodem_process(3));
+  EXPECT_EQ(XMODEM_WAIT_FOR_TRANSFER_ACK, xmodem_state());
+  EXPECT_EQ(true, xmodem_process(59000));
+  EXPECT_EQ(XMODEM_WAIT_FOR_TRANSFER_ACK, xmodem_state());
+  EXPECT_EQ(true, xmodem_process(60002));
+  EXPECT_EQ(XMODEM_WAIT_FOR_TRANSFER_ACK, xmodem_state());
+  EXPECT_EQ(true, xmodem_process(60003));
+  EXPECT_EQ(XMODEM_TIMEOUT_TRANSFER_ACK, xmodem_state());
+ 
   EXPECT_EQ(true, xmodem_cleanup());
 
 }

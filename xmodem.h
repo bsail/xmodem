@@ -7,7 +7,7 @@ enum XMODEM_STATES {XMODEM_INITIAL, XMODEM_SEND_REQUEST_FOR_TRANSFER, XMODEM_WAI
 
 xmodem_state_t xmodem_state();
 bool xmodem_init();
-bool xmodem_process(uint32_t timer);
+bool xmodem_process(const uint32_t current_time);
 bool xmodem_cleanup();
 
 
