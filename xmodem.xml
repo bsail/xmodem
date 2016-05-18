@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+
+   <remote name="github"
+           fetch="ssh://github.com" />
+
+  
+   <project name="caseykelso/ringbuffer"                    remote="github"  path="ringbuffer" revision="master" />  
+   <project name="caseykelso/xmodem"                        remote="github"  path="." revision="master" />
+   <project name="google/googletest.git"                    remote="github"  path="gtest" clone-depth="1"   revision="master"  />
+   <project name="Kitware/CMake.git"                        remote="github"  path="cmake" clone-depth="1"   revision="master"  />
+
+</manifest>
+
