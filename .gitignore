@@ -9,4 +9,5 @@ cmake/
 gtest/
 installed.host/
 ringbuffer/
+.ant-targets-build.xml
 
