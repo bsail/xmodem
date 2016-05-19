@@ -8,9 +8,9 @@ Features
 
 Build Application
 -----------------
-mkdir xmodem
-cd xmodem
-repo init -m xmodem.xml -u git@github.org:caseykelso/xmodem.git
+mkdir xmodem<br/>
+cd xmodem<br/>
+repo init -m xmodem.xml -u git://github.com/caseykelso/xmodem.git<br/>
 
 Build Library - HLOS
 ------------------
