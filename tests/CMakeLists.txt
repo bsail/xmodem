@@ -18,16 +18,16 @@ set(CMAKE_CXX_FLAGS_DEBUG   "-O0 -ggdb -g3")
 endif(APPLE)
 
 set(XMODEM_TEST_SOURCES test.cpp XModemTests.cpp)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}  ${INCLUDE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}  ${INCLUDE_DIR} ${INSTALL_DIR}/include )
 add_executable(xmodem_test ${XMODEM_TEST_SOURCES} ${XMODEM_TEST_HEADERS})
 
 #find_library(MBEDTLS_LIBRARY mbedcrypto ${INSTALL_LIBRARY_DIR})
-link_directories(${DEPENDENCIES_LIBRARY_DIR} ${INSTALL_LIBRARY_DIR})
+link_directories(${INSTALL_DIR}/lib)
 
 if (APPLE)
-target_link_libraries(xmodem_test ${LIBRARY_DIR}/libxmodem.a ${LIBRARY_DIR}/libgtest.a pthread )
+target_link_libraries(xmodem_test ${INSTALL_DIR}/lib/libxmodem.a ${INSTALL_DIR}/lib/libgtest.a pthread )
 else(APPLE)
-target_link_libraries(xmodem_test ${LIBRARY_DIR}/libxmodem.a ${LIBRARY_DIR}/libgtest.a pthread rt)
+target_link_libraries(xmodem_test ${INSTALL_DIR}/lib/libxmodem.a ${INSTALL_DIR}/lib/libgtest.a pthread rt)
 endif(APPLE)
 
 install(TARGETS xmodem_test DESTINATION bin)

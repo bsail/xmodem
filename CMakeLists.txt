@@ -5,7 +5,6 @@ set(LIB_XMODEM 0)
 set(LIB_XMODEM 1)
 
 set(CMAKE_BUILD_TYPE Debug)
-
 if(!TARGET_BUILD)
 if(APPLE)
 set(CMAKE_CXX_FLAGS_RELEASE "-O0 -g -std=c11")
