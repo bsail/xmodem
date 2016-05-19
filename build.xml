@@ -1,0 +1,94 @@
+<project name="xmodem" default="all" basedir=".">
+
+<property name="install.host.dir"         value="${basedir}/installed.host" />
+<property name="install.target.dir"       value="${basedir}/installed.target" /> 
+<property name="gtest.dir"                value="${basedir}/gtest" />
+<property name="gtest.build"              value="${basedir}/build.gtest" /> 
+<property name="cmake.dir"                value="${basedir}/cmake" />
+<property name="cmake.bin"                value="${install.host.dir}/bin/cmake" />
+<property name="tests.dir"                value="${basedir}/tests" />
+<property name="tests.build"              value="${basedir}/build.tests" />
+<property name="test.bin"                 value="${install.host.dir}/bin/xmodem_test" />
+<property name="build"                    value="${basedir}/build" />
+
+<target name="all" depends="cmake, gtest, tests" />
+
+<target name="cmake">
+  <exec executable="./configure" dir="${cmake.dir}" failonerror="true">
+    <arg value="--prefix=${install.host.dir}" />
+  </exec>
+  <exec executable="make" dir="${cmake.dir}" failonerror="true">
+    <arg value="install" />
+    <arg value="-j8" />
+  </exec>
+</target>
+
+<target name="gtest">
+   <delete dir="${gtest.build}" />
+   <mkdir dir="${gtest.build}" />
+   <exec executable="${cmake.bin}" dir="${gtest.build}">
+      <arg value="-DCMAKE_INSTALL_PREFIX=${install.host.dir}" />
+      <arg value="${gtest.dir}" />
+   </exec> 
+   
+   <exec executable="make" dir="${gtest.build}">
+      <arg value="-j8" />
+      <arg value="install" />
+   </exec>  
+</target>
+
+<target name="clean">
+  <delete dir="${tests.build}" />
+</target>
+
+<target name="clean_deep">
+  <delete dir="${install.host.dir}" />
+  <delete dir="${install.target.dir}" />
+  <delete dir="${tests.build}" />
+  <delete dir="${gtest.build}" />
+  <delete dir="${build}" />
+</target>
+
+<target name="xmodem">
+  <delete dir="${build}" />
+  <mkdir  dir="${build}" />
+
+  <exec executable="${cmake.bin}" dir="${build}" failonerror="true" >
+    <arg value="-DCMAKE_INSTALL_PREFIX=${install.host.dir}" />
+    <arg value="-DCMAKE_BUILD_TYPE=Debug" />
+    <arg value="${basedir}" />
+  </exec>
+
+  <exec executable="make" dir="${build}" failonerror="true">
+  </exec>
+
+  <exec executable="make" dir="${build}" failonerror="true">
+    <arg value="install" />
+  </exec>
+</target>
+
+<target name="tests" depends="xmodem" >
+
+  <delete dir="${tests.build}" />
+  <mkdir dir="${tests.build}" />
+
+  <exec executable="${cmake.bin}" dir="${tests.build}" failonerror="true" >
+    <arg value="-DCMAKE_INSTALL_PREFIX=${install.host.dir}" />
+    <arg value="-DINSTALL_DIR=${install.host.dir}" />
+    <arg value="-DCMAKE_BUILD_TYPE=Debug" />
+    <arg value="${tests.dir}" />
+  </exec>
+
+  <exec executable="make" dir="${tests.build}" failonerror="true">
+  </exec>
+
+  <exec executable="make" dir="${tests.build}" failonerror="true">
+    <arg value="install" />
+  </exec>
+
+  <exec executable="${test.bin}" failonerror="true">
+  </exec>
+
+</target>
+
+</project>
