@@ -11,6 +11,10 @@ static bool (*callback_write_data)(const uint32_t requested_size, uint8_t *buffe
 
 static xmodem_state_t state;
 static const uint32_t TRANSFER_ACK_TIMEOUT = 60000; //60 seconds
+static const uint32_t READ_BLOCK_TIMEOUT   = 60000; //60 seconds
+static uint8_t        control_character;
+static uint32_t       returned_size;
+
 
 xmodem_state_t xmodem_state()
 {
@@ -90,7 +94,6 @@ bool xmodem_process(const uint32_t current_time)
                    }
                 } 
              } 
-             //TODO: check for ACK or EOT in inbound buffer
           }
 
           break;
@@ -99,22 +102,64 @@ bool xmodem_process(const uint32_t current_time)
       case XMODEM_TIMEOUT_TRANSFER_ACK:
       {
           state = XMODEM_ABORT_TRANSFER; 
+          stopwatch = current_time;
+          break;
+      }
+
+      case XMODEM_TIMEOUT_WAIT_READ_BLOCK:
+      {
+          state = XMODEM_ABORT_TRANSFER;
+          stopwatch = current_time;
           break;
       }
 
       case XMODEM_ABORT_TRANSFER:
       {
-          //TODO: send abort 
+          control_character = NAK; 
+          callback_write_data(1, &control_character, &returned_size);  
           break;
       }
 
       case XMODEM_READ_BLOCK:
       {
+
+          if (current_time > (stopwatch + READ_BLOCK_TIMEOUT))
+          {
+             state = XMODEM_TIMEOUT_WAIT_READ_BLOCK;
+          }
+          else
+          {
+#if 0
+             uint8_t   inbound       = 0;
+             uint32_t  returned_size = 0;
+ 
+             if (!callback_is_inbound_empty())
+             {
+                callback_read_data(1, &inbound, &returned_size);
+
+                if (returned_size > 0)
+                {
+                   if (ACK == inbound)
+                   {
+                       state = XMODEM_TRANSFER_ACK_RECEIVED;
+                   }
+                   else if (EOT == inbound)
+                   {
+                       state = XMODEM_TRANSFER_COMPLETE;
+                   }
+                } 
+             } 
+             //TODO: check for ACK or EOT in inbound buffer
+
+#endif
+          }
           break;
       }
 
+
       case XMODEM_TRANSFER_ACK_RECEIVED:
       {
+          state = XMODEM_READ_BLOCK;
           break;
       }
 
@@ -157,14 +202,6 @@ bool xmodem_process(const uint32_t current_time)
       {
           state = XMODEM_UNKNOWN; 
       }
-
-#if 0
-enum XMODEM_STATES {XMODEM_INITIAL, XMODEM_SEND_REQUEST_FOR_TRANSFER, XMODEM_WAIT_FOR_TRANSFER_ACK, XMODEM_TIMEOUT_TRANSFER_ACK,
-                    XMODEM_TIMEOUT_WAIT_READ_BLOCK, XMODEM_ABORT_TRANSFER, XMODEM_READ_BLOCK, XMODEM_TRANSFER_ACK_RECEIVED,
-                    XMODEM_TRANSFER_COMPLETE, XMODEM_BLOCK_RECEIVED, XMODEM_INVALID_BLOCK, XMODEM_ACK_BLOCK, XMODEM_VALID_BLOCK} typedef xmodem_state_t;
-#endif
-
-
 
 
    };

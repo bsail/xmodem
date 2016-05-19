@@ -78,7 +78,7 @@ TEST_F(XModemTests, XMODEM_TIMEOUT_TRANSFER_ACK)
 }
 
 
-TEST_F(XModemTests, XMODEM_TIMEOUT_TRANSFER_COMPLETE)
+TEST_F(XModemTests, XMODEM_TIMEOUT_WAIT_READ_BLOCK)
 {
   xmodem_set_callback_write(&write_data);
   xmodem_set_callback_read(&read_data);
@@ -101,9 +101,17 @@ TEST_F(XModemTests, XMODEM_TIMEOUT_TRANSFER_COMPLETE)
   
   EXPECT_EQ(true, xmodem_process(3));
   EXPECT_EQ(XMODEM_TRANSFER_ACK_RECEIVED, xmodem_state());
-    
+  EXPECT_EQ(true, xmodem_process(3));
+  EXPECT_EQ(XMODEM_READ_BLOCK, xmodem_state());   
+  EXPECT_EQ(true, xmodem_process(60002));
+  EXPECT_EQ(XMODEM_READ_BLOCK, xmodem_state());   
+  EXPECT_EQ(true, xmodem_process(60003));
+  EXPECT_EQ(XMODEM_TIMEOUT_WAIT_READ_BLOCK, xmodem_state());
+  EXPECT_EQ(true, xmodem_process(60004));
+  EXPECT_EQ(XMODEM_ABORT_TRANSFER, xmodem_state());  
+   
 
-  //EXPECT_EQ(true, 
+
   EXPECT_EQ(true, xmodem_cleanup());
 
 }
