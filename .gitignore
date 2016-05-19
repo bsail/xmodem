@@ -1,4 +1,13 @@
 *.swp
 tags
 .DS_Store
+.repo/
+build.gtest/
+build.tests/
+build.xml
+build/
+cmake/
+gtest/
+installed.host/
+ringbuffer/
 
