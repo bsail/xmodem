@@ -4,7 +4,6 @@ tags
 .repo/
 build.gtest/
 build.tests/
-build.xml
 build/
 cmake/
 gtest/
