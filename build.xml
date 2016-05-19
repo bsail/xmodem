@@ -1,4 +1,4 @@
-<project name="xmodem" default="all" basedir=".">
+<project name="xmodem" default="tests" basedir=".">
 
 <property name="install.host.dir"         value="${basedir}/installed.host" />
 <property name="install.target.dir"       value="${basedir}/installed.target" /> 
