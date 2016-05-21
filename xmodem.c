@@ -13,8 +13,8 @@ static xmodem_state_t state;
 static const uint32_t TRANSFER_ACK_TIMEOUT = 60000; //60 seconds
 static const uint32_t READ_BLOCK_TIMEOUT   = 60000; //60 seconds
 static uint8_t        control_character;
-static uint32_t       returned_size;
-
+static uint32_t       returned_size        = 0;
+static uint8_t        inbound              = 0;
 
 xmodem_state_t xmodem_state()
 {
@@ -54,16 +54,39 @@ bool xmodem_process(const uint32_t current_time)
 
       case XMODEM_INITIAL:
       {
-        state = XMODEM_SEND_REQUEST_FOR_TRANSFER;
+        state = XMODEM_WAIT_FOR_NACK;
         break;
+      }
+
+      case XMODEM_WAIT_FOR_NACK:
+      {
+        if (!callback_is_inbound_empty())
+        {
+          callback_read_data(1, &inbound, &returned_size);
+
+          if (returned_size > 0 && NACK == inbound)
+          {
+            state = XMODEM_SEND_REQUEST_FOR_TRANSFER;
+          }
+        }
+        break;      
       }
 
       case XMODEM_SEND_REQUEST_FOR_TRANSFER:
       {
-        state = XMODEM_WAIT_FOR_TRANSFER_ACK;
-        //TODO: send request for transfer
-        
-        stopwatch = current_time;  // start the stopwatch to watch for a TRANSFER_ACK TIMEOUT
+         static uint8_t   outbound       = SOH;
+         static uint32_t  delivered_size = 0;
+
+        if (!callback_is_outbound_full())
+        {
+            callback_write_data(1, &outbound, &delivered_size);
+
+            if (0 < delivered_size)
+            {
+              state     = XMODEM_WAIT_FOR_TRANSFER_ACK;
+              stopwatch = current_time;  // start the stopwatch to watch for a TRANSFER_ACK TIMEOUT
+            }
+        } 
         break;
       }
 
@@ -75,8 +98,6 @@ bool xmodem_process(const uint32_t current_time)
           }
           else
           {
-             uint8_t   inbound       = 0;
-             uint32_t  returned_size = 0;
  
              if (!callback_is_inbound_empty())
              {
@@ -115,7 +136,7 @@ bool xmodem_process(const uint32_t current_time)
 
       case XMODEM_ABORT_TRANSFER:
       {
-          control_character = NAK; 
+          control_character = CAN; 
           callback_write_data(1, &control_character, &returned_size);  
           break;
       }
