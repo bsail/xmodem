@@ -9,30 +9,39 @@ static bool (*callback_write_data)(const uint32_t requested_size, uint8_t *buffe
 
 
 
-static xmodem_state_t state;
+static xmodem_transmit_state_t transmit_state;
+static xmodem_receive_state_t receive_state;
+//static const uint32_t 
 static const uint32_t TRANSFER_ACK_TIMEOUT = 60000; //60 seconds
 static const uint32_t READ_BLOCK_TIMEOUT   = 60000; //60 seconds
 static uint8_t        control_character;
 static uint32_t       returned_size        = 0;
 static uint8_t        inbound              = 0;
 
-xmodem_state_t xmodem_state()
+xmodem_transmit_state_t xmodem_transmit_state()
 {
-   return state;
+   return transmit_state;
+}
+
+xmodem_receive_state_t xmodem_receive_state()
+{
+   return receive_state;
 }
 
 bool xmodem_init()
 {
   
-   bool result = false; 
-   state       = XMODEM_UNKNOWN;
+   bool result          = false; 
+   transmit_state       = XMODEM_TRANSMIT_UNKNOWN;
+   receive_state        = XMODEM_RECEIVE_UNKNOWN;
 
    if (0 != callback_is_inbound_empty &&
        0 != callback_is_outbound_full  &&
        0 != callback_read_data &&
        0 != callback_write_data)
    {
-      state  = XMODEM_INITIAL;
+      transmit_state  = XMODEM_TRANSMIT_INITIAL;
+      receive_state   = XMODEM_RECEIVE_INITIAL;
       result = true;
    }
 
@@ -44,21 +53,21 @@ bool xmodem_cleanup()
    return true;
 }
 
-bool xmodem_process(const uint32_t current_time)
+bool xmodem_transmit_process(const uint32_t current_time)
 {
 
    static uint32_t stopwatch = 0;
 
-   switch(state)
+   switch(transmit_state)
    {
 
-      case XMODEM_INITIAL:
+      case XMODEM_TRANSMIT_INITIAL:
       {
-        state = XMODEM_WAIT_FOR_NACK;
+        transmit_state = XMODEM_TRANSMIT_WAIT_FOR_NACK;
         break;
       }
 
-      case XMODEM_WAIT_FOR_NACK:
+      case XMODEM_TRANSMIT_WAIT_FOR_NACK:
       {
         if (!callback_is_inbound_empty())
         {
@@ -66,13 +75,13 @@ bool xmodem_process(const uint32_t current_time)
 
           if (returned_size > 0 && NACK == inbound)
           {
-            state = XMODEM_SEND_REQUEST_FOR_TRANSFER;
+            transmit_state = XMODEM_TRANSMIT_SEND_REQUEST_FOR_TRANSFER;
           }
         }
         break;      
       }
 
-      case XMODEM_SEND_REQUEST_FOR_TRANSFER:
+      case XMODEM_TRANSMIT_SEND_REQUEST_FOR_TRANSFER:
       {
          static uint8_t   outbound       = SOH;
          static uint32_t  delivered_size = 0;
@@ -83,18 +92,18 @@ bool xmodem_process(const uint32_t current_time)
 
             if (0 < delivered_size)
             {
-              state     = XMODEM_WAIT_FOR_TRANSFER_ACK;
+              transmit_state     = XMODEM_TRANSMIT_WAIT_FOR_TRANSFER_ACK;
               stopwatch = current_time;  // start the stopwatch to watch for a TRANSFER_ACK TIMEOUT
             }
         } 
         break;
       }
 
-      case XMODEM_WAIT_FOR_TRANSFER_ACK:
+      case XMODEM_TRANSMIT_WAIT_FOR_TRANSFER_ACK:
       {
           if (current_time > (stopwatch + TRANSFER_ACK_TIMEOUT))
           {
-             state = XMODEM_TIMEOUT_TRANSFER_ACK;
+             transmit_state = XMODEM_TRANSMIT_TIMEOUT_TRANSFER_ACK;
           }
           else
           {
@@ -107,11 +116,11 @@ bool xmodem_process(const uint32_t current_time)
                 {
                    if (ACK == inbound)
                    {
-                       state = XMODEM_TRANSFER_ACK_RECEIVED;
+                       transmit_state = XMODEM_TRANSMIT_TRANSFER_ACK_RECEIVED;
                    }
                    else if (EOT == inbound)
                    {
-                       state = XMODEM_TRANSFER_COMPLETE;
+                       transmit_state = XMODEM_TRANSMIT_TRANSFER_COMPLETE;
                    }
                 } 
              } 
@@ -120,33 +129,33 @@ bool xmodem_process(const uint32_t current_time)
           break;
       }
 
-      case XMODEM_TIMEOUT_TRANSFER_ACK:
+      case XMODEM_TRANSMIT_TIMEOUT_TRANSFER_ACK:
       {
-          state = XMODEM_ABORT_TRANSFER; 
+          transmit_state = XMODEM_TRANSMIT_ABORT_TRANSFER; 
           stopwatch = current_time;
           break;
       }
 
-      case XMODEM_TIMEOUT_WAIT_READ_BLOCK:
+      case XMODEM_TRANSMIT_TIMEOUT_WAIT_READ_BLOCK:
       {
-          state = XMODEM_ABORT_TRANSFER;
+          transmit_state = XMODEM_TRANSMIT_ABORT_TRANSFER;
           stopwatch = current_time;
           break;
       }
 
-      case XMODEM_ABORT_TRANSFER:
+      case XMODEM_TRANSMIT_ABORT_TRANSFER:
       {
           control_character = CAN; 
           callback_write_data(1, &control_character, &returned_size);  
           break;
       }
 
-      case XMODEM_READ_BLOCK:
+      case XMODEM_TRANSMIT_READ_BLOCK:
       {
 
           if (current_time > (stopwatch + READ_BLOCK_TIMEOUT))
           {
-             state = XMODEM_TIMEOUT_WAIT_READ_BLOCK;
+             transmit_state = XMODEM_TRANSMIT_TIMEOUT_WAIT_READ_BLOCK;
           }
           else
           {
@@ -162,11 +171,11 @@ bool xmodem_process(const uint32_t current_time)
                 {
                    if (ACK == inbound)
                    {
-                       state = XMODEM_TRANSFER_ACK_RECEIVED;
+                       transmit_state = XMODEM_TRANSFER_ACK_RECEIVED;
                    }
                    else if (EOT == inbound)
                    {
-                       state = XMODEM_TRANSFER_COMPLETE;
+                       transmit_state = XMODEM_TRANSFER_COMPLETE;
                    }
                 } 
              } 
@@ -178,50 +187,50 @@ bool xmodem_process(const uint32_t current_time)
       }
 
 
-      case XMODEM_TRANSFER_ACK_RECEIVED:
+      case XMODEM_TRANSMIT_TRANSFER_ACK_RECEIVED:
       {
-          state = XMODEM_READ_BLOCK;
+          transmit_state = XMODEM_TRANSMIT_READ_BLOCK;
           break;
       }
 
-      case XMODEM_TRANSFER_COMPLETE:
+      case XMODEM_TRANSMIT_TRANSFER_COMPLETE:
       {
           break;
       }
  
-      case XMODEM_BLOCK_RECEIVED:
+      case XMODEM_TRANSMIT_BLOCK_RECEIVED:
       {
           break;
       }
 
-      case XMODEM_INVALID_BLOCK:
+      case XMODEM_TRANSMIT_INVALID_BLOCK:
       {
           break;
       }
 
-      case XMODEM_VALID_BLOCK:
+      case XMODEM_TRANSMIT_VALID_BLOCK:
       {
-          state = XMODEM_ACK_BLOCK;
+          transmit_state = XMODEM_TRANSMIT_ACK_BLOCK;
           break;
       }
 
-      case XMODEM_ACK_BLOCK:
+      case XMODEM_TRANSMIT_ACK_BLOCK:
       {
           //TODO: send ACK
           stopwatch = current_time;  // start the stopwatch to watch for a TRANSFER_ACK TIMEOUT
-          state = XMODEM_WAIT_FOR_TRANSFER_ACK;
+          transmit_state = XMODEM_TRANSMIT_WAIT_FOR_TRANSFER_ACK;
           break;
       }
 
-      case XMODEM_UNKNOWN:
+      case XMODEM_TRANSMIT_UNKNOWN:
       {
-          state = XMODEM_ABORT_TRANSFER;
+          transmit_state = XMODEM_TRANSMIT_ABORT_TRANSFER;
           break;
       }
 
       default:
       {
-          state = XMODEM_UNKNOWN; 
+          transmit_state = XMODEM_TRANSMIT_UNKNOWN; 
       }
 
 
@@ -251,5 +260,47 @@ void xmodem_set_callback_is_inbound_empty(bool (*callback)())
 {
    callback_is_inbound_empty = callback;
 }
+
+
+bool xmodem_calculate_crc(uint8_t *data, const uint32_t size, uint16_t *result)
+{
+
+   uint16_t crc    = 0x0;
+   uint32_t count  = size;
+   bool     status = false;
+   uint8_t  i      = 0;
+
+   if (0 != data && 0 != result)
+   {
+           status = true;
+
+	   while (0 < --count)
+	   {
+	      crc = crc ^ (uint16_t) *data++ << 8;
+	      i = 8;
+
+	      do
+	      {
+		  if (0x8000 & crc)
+		  {
+		     crc = crc << 1 ^ 0x1021;
+		  }
+		  else
+		  {
+		     crc = crc << 1;
+		  }
+
+	      } 
+	      while (0 < --i);
+
+	   }
+           
+           *result = crc;
+   }
+
+   return status;
+}
+
+
 
 

@@ -51,6 +51,8 @@ static bool write_data(const uint32_t requested_size, uint8_t *buffer, uint32_t 
    return result_outbound_buffer;
 }
 
+#if 0
+
 TEST_F(XModemTests, XMODEM_TIMEOUT_TRANSFER_ACK)
 {
 
@@ -171,7 +173,10 @@ TEST_F(XModemTests, XMODEM_TIMEOUT_WAIT_READ_BLOCK)
 
 }
 
+#endif
 
+
+#if 0
 
 TEST_F(XModemTests, XMODEM_SUCCESS_READ_BLOCK)
 {
@@ -234,8 +239,7 @@ TEST_F(XModemTests, XMODEM_SUCCESS_READ_BLOCK)
 }
 
 
-
-
+#endif
 
 int main (int argc, char** argv)
 {
