@@ -2,8 +2,8 @@
 
 #include <stdint.h>
 #include <iostream>
+#include <string.h>
 #include "XModemTests.h"
-
 
 
 static bool is_inbound_empty()
@@ -32,8 +32,51 @@ static bool write_data(const uint32_t requested_size, uint8_t *buffer, uint32_t 
    return result_outbound_buffer;
 }
 
+
+TEST_F(XModemTests, XMODEM_CRC_CALCULATION)
+{
+
+   uint8_t    buffer[9];
+   uint16_t   result;
+ 
+   memset(buffer, 0, 9);
+
+   for (uint8_t i = 0; i < 9; ++i)
+   {
+      buffer[i] = i+1;
+   }
+ 
+   EXPECT_EQ(true, xmodem_calculate_crc(buffer, 9, &result));
+   EXPECT_EQ(0x31C3, result);
+
+}
+
 TEST_F(XModemTests, XMODEM_VERIFY_PACKET)
 {
+   uint8_t          buffer[9];
+   xmodem_packet_t  p;
+
+   memset(&p, 0, sizeof(xmodem_packet_t));  
+
+   for (uint8_t i = 0; i < 9; ++i)
+   {
+      p.data[i] = i+1;
+   }
+  
+   EXPECT_EQ(false, xmodem_verify_packet(p, 1));
+
+   p.preamble = SOH;
+   EXPECT_EQ(false, xmodem_verify_packet(p, 1));
+
+   p.id = 1;
+   EXPECT_EQ(false, xmodem_verify_packet(p, 1));
+
+   p.id_complement = 0xFF - p.id;
+   EXPECT_EQ(false, xmodem_verify_packet(p, 1));
+
+   p.crc = 0xBB3D; 
+   EXPECT_EQ(true, xmodem_verify_packet(p, 1));
+
    //bool xmodem_verify_packet(const xmodem_packet_t packet, uint8_t expected_packet_id)
 }
   

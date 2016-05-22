@@ -23,7 +23,6 @@ typedef struct
   uint8_t  id_complement;
   uint8_t  data[XMODEM_BLOCK_SIZE];
   uint16_t crc;
-  uint8_t  reserved;
 } xmodem_packet_t;
 
 xmodem_transmit_state_t xmodem_transmit_state();
@@ -35,6 +34,7 @@ bool xmodem_transmit_process(const uint32_t current_time);
 bool xmodem_receive_process(const uint32_t current_time);
 bool xmodem_cleanup();
 bool xmodem_verify_packet(const xmodem_packet_t packet, uint8_t expected_packet_id);
+bool xmodem_calculate_crc(const uint8_t *data, const uint32_t size, uint16_t *result);
 
 void xmodem_set_callback_write(bool (*callback)(const uint32_t requested_size, uint8_t *buffer, uint32_t *returned_size));
 void xmodem_set_callback_read(bool (*callback)(const uint32_t requested_size, uint8_t *buffer, uint32_t *returned_size));
