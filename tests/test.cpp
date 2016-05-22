@@ -2,28 +2,9 @@
 
 #include <stdint.h>
 #include <iostream>
-#include <iomanip>
 #include "XModemTests.h"
-#include <string.h>
 
-#define INBOUND_BUFFER_SIZE  1024
-#define OUTBOUND_BUFFER_SIZE 1024
 
-/* Setup dummy functions for mocking out callbacks */
-static bool     inbound_empty           = false;
-static bool     result_inbound_buffer   = false;
-static uint32_t returned_inbound_size   = 0;
-static uint8_t  inbound_buffer[INBOUND_BUFFER_SIZE];
-static uint32_t requested_inbound_size  = 0;
-
-static bool     outbound_full           = false;
-static bool     result_outbound_buffer  = false;
-static uint32_t returned_outbound_size  = 0;
-static uint8_t  outbound_buffer[OUTBOUND_BUFFER_SIZE];
-static uint32_t requested_outbound_size = 0;
-static uint8_t  block_counter           = 0;
-
-static uint8_t  tmp = 0;
 
 static bool is_inbound_empty()
 {
@@ -50,6 +31,163 @@ static bool write_data(const uint32_t requested_size, uint8_t *buffer, uint32_t 
    *returned_size = returned_outbound_size;
    return result_outbound_buffer;
 }
+
+TEST_F(XModemTests, XMODEM_VERIFY_PACKET)
+{
+   //bool xmodem_verify_packet(const xmodem_packet_t packet, uint8_t expected_packet_id)
+}
+  
+
+TEST_F(XModemTests, XMODEM_TRANSMIT_TIMEOUT_WAIT_WRITE_BLOCK)
+{
+  
+  EXPECT_EQ(false, xmodem_transmit_init(buffer, BUFFER_SIZE));
+  EXPECT_EQ(XMODEM_TRANSMIT_UNKNOWN, xmodem_transmit_state());
+
+  xmodem_set_callback_write(&write_data);
+  xmodem_set_callback_read(&read_data);
+  xmodem_set_callback_is_outbound_full(&is_outbound_full);
+  xmodem_set_callback_is_inbound_empty(&is_inbound_empty);
+
+  EXPECT_EQ(true, xmodem_transmit_init(buffer, BUFFER_SIZE));
+  EXPECT_EQ(XMODEM_TRANSMIT_INITIAL, xmodem_transmit_state());
+
+  for (int i = 0; i < 20; ++i)
+  {  
+    EXPECT_EQ(true, xmodem_transmit_process(0));
+    EXPECT_EQ(XMODEM_TRANSMIT_WAIT_FOR_C, xmodem_transmit_state());
+  }
+
+  returned_inbound_size = 1; 
+  inbound_buffer[0] = C;
+
+  // attempt to send a SOH control character, but the outbound buffer is full 
+  returned_outbound_size = 0;
+  EXPECT_EQ(true, xmodem_transmit_process(1));
+  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK, xmodem_transmit_state());
+
+  EXPECT_EQ(true, xmodem_transmit_process(2));
+ 
+  xmodem_cleanup(); 
+
+}
+
+
+TEST_F(XModemTests, XMODEM_TRANSMIT_WRITE_BLOCK)
+{
+  
+  EXPECT_EQ(false, xmodem_transmit_init(buffer, BUFFER_SIZE));
+  EXPECT_EQ(XMODEM_TRANSMIT_UNKNOWN, xmodem_transmit_state());
+
+  xmodem_set_callback_write(&write_data);
+  xmodem_set_callback_read(&read_data);
+  xmodem_set_callback_is_outbound_full(&is_outbound_full);
+  xmodem_set_callback_is_inbound_empty(&is_inbound_empty);
+
+  EXPECT_EQ(true, xmodem_transmit_init(buffer, BUFFER_SIZE));
+  EXPECT_EQ(XMODEM_TRANSMIT_INITIAL, xmodem_transmit_state());
+
+  for (int i = 0; i < 20; ++i)
+  {  
+    EXPECT_EQ(true, xmodem_transmit_process(0));
+    EXPECT_EQ(XMODEM_TRANSMIT_WAIT_FOR_C, xmodem_transmit_state());
+  }
+
+  returned_inbound_size  = 1; 
+  inbound_buffer[0]      = C;
+  outbound_full          = false;
+  inbound_empty          = false;
+  returned_outbound_size = 1;
+  timer                  = 1;
+
+  EXPECT_EQ(XMODEM_TRANSMIT_WAIT_FOR_C, xmodem_transmit_state());  
+  EXPECT_EQ(true, xmodem_transmit_process(0));
+  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK, xmodem_transmit_state());
+  EXPECT_EQ(true, xmodem_transmit_process(0));
+  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK, xmodem_transmit_state());
+  EXPECT_EQ(outbound_buffer[0], SOH);
+  EXPECT_EQ(outbound_buffer[1], packet_number);
+  EXPECT_EQ(outbound_buffer[2], 0xFF - packet_number);
+  EXPECT_EQ(0, memcmp(outbound_buffer+3, buffer+buffer_position, XMODEM_BLOCK_SIZE));
+
+
+#if 0
+  EXPECT_EQ(true, xmodem_transmit_process(timer));
+  ++timer;
+  EXPECT_EQ(outbound_buffer[0], SOH);
+  EXPECT_EQ(outbound_buffer[1], packet_number);
+  EXPECT_EQ(outbound_buffer[2], 0xFF - packet_number);
+  EXPECT_EQ(0, memcmp(outbound_buffer+3, buffer+buffer_position, 128));
+
+  // clear outbound buffer on each iteration
+  memset(outbound_buffer, 0, OUTBOUND_BUFFER_SIZE);
+
+  EXPECT_EQ(XMODEM_TRANSMIT_COMPLETE, xmodem_transmit_state());
+#endif
+  xmodem_cleanup(); 
+
+}
+
+TEST_F(XModemTests, XMODEM_TRANSMIT_WRITE_DOCUMENT)
+{
+  
+  EXPECT_EQ(false, xmodem_transmit_init(buffer, BUFFER_SIZE));
+  EXPECT_EQ(XMODEM_TRANSMIT_UNKNOWN, xmodem_transmit_state());
+
+  xmodem_set_callback_write(&write_data);
+  xmodem_set_callback_read(&read_data);
+  xmodem_set_callback_is_outbound_full(&is_outbound_full);
+  xmodem_set_callback_is_inbound_empty(&is_inbound_empty);
+
+  EXPECT_EQ(true, xmodem_transmit_init(buffer, BUFFER_SIZE));
+  EXPECT_EQ(XMODEM_TRANSMIT_INITIAL, xmodem_transmit_state());
+
+  for (int i = 0; i < 20; ++i)
+  {  
+    EXPECT_EQ(true, xmodem_transmit_process(0));
+    EXPECT_EQ(XMODEM_TRANSMIT_WAIT_FOR_C, xmodem_transmit_state());
+  }
+
+  returned_inbound_size  = 1; 
+  inbound_buffer[0]      = C;
+  outbound_full          = false;
+  inbound_empty          = false;
+  result_outbound_buffer = true;
+  result_inbound_buffer  = true;
+  returned_outbound_size = sizeof(xmodem_packet_t);
+  timer                  = 1;
+
+  EXPECT_EQ(true, xmodem_transmit_process(0));
+  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK, xmodem_transmit_state());
+
+ 
+     EXPECT_EQ(true, xmodem_transmit_process(timer));
+
+  while (xmodem_transmit_state() != XMODEM_TRANSMIT_COMPLETE &&
+         xmodem_transmit_state() != XMODEM_TRANSMIT_ABORT)
+  {
+     ++timer;
+     EXPECT_EQ(outbound_buffer[0], SOH);
+     EXPECT_EQ(outbound_buffer[1], packet_number);
+     EXPECT_EQ(outbound_buffer[2], 0xFF - packet_number);
+     EXPECT_EQ(0, memcmp(outbound_buffer+3, buffer+buffer_position, 1));
+     buffer_position = buffer_position + XMODEM_BLOCK_SIZE;
+
+     // clear outbound buffer on each iteration
+     memset(outbound_buffer, 0, OUTBOUND_BUFFER_SIZE);
+     ++packet_number;
+
+     EXPECT_EQ(true, xmodem_transmit_process(timer));
+  }
+
+  EXPECT_EQ(true, xmodem_transmit_process(timer));
+  EXPECT_EQ(XMODEM_TRANSMIT_COMPLETE, xmodem_transmit_state());
+  EXPECT_EQ(outbound_buffer[0], EOT); 
+  xmodem_cleanup(); 
+
+}
+
+
 
 #if 0
 
