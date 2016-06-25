@@ -36,18 +36,13 @@ static bool write_data(const uint32_t requested_size, uint8_t *buffer, uint32_t 
 TEST_F(XModemTests, XMODEM_CRC_CALCULATION)
 {
 
-   uint8_t    buffer[9];
+   uint8_t    buffer[10];
    uint16_t   result;
  
-   memset(buffer, 0, 9);
-
-   for (uint8_t i = 0; i < 9; ++i)
-   {
-      buffer[i] = i+1;
-   }
- 
-   EXPECT_EQ(true, xmodem_calculate_crc(buffer, 9, &result));
-   EXPECT_EQ(0x31C3, result);
+   memset(buffer, 0, 10);
+   memcpy(buffer,"helloworld", 10);
+   EXPECT_EQ(true, xmodem_calculate_crc(buffer, 10, &result));
+   EXPECT_EQ(0x4AB3, result); //reference value 0x4AB3 calculated here: http://www.tahapaksu.com/crc/
 
 }
 
@@ -79,7 +74,6 @@ TEST_F(XModemTests, XMODEM_VERIFY_PACKET)
 
    //bool xmodem_verify_packet(const xmodem_packet_t packet, uint8_t expected_packet_id)
 }
-  
 
 TEST_F(XModemTests, XMODEM_TRANSMIT_TIMEOUT_WAIT_WRITE_BLOCK)
 {

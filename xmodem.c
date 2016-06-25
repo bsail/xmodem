@@ -24,6 +24,7 @@ static uint32_t        payload_size            = 0;
 static uint8_t         current_packet_id       = 0;
 static xmodem_packet_t current_packet;
 
+
 bool xmodem_calculate_crc(const uint8_t *data, const uint32_t size, uint16_t *result)
 {
 
@@ -36,7 +37,7 @@ bool xmodem_calculate_crc(const uint8_t *data, const uint32_t size, uint16_t *re
    {
            status = true;
 
-	   while (0 < --count)
+	   while (0 < count--)
 	   {
 	      crc = crc ^ (uint16_t) *data++ << 8;
 	      i = 8;
