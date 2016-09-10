@@ -13,8 +13,9 @@ enum XMODEM_RECEIVE_STATES {XMODEM_RECEIVE_INITIAL, XMODEM_RECEIVE_WAIT_FOR_NACK
                     XMODEM_RECEIVE_TRANSFER_COMPLETE, XMODEM_RECEIVE_BLOCK_RECEIVED, XMODEM_RECEIVE_INVALID_BLOCK, XMODEM_RECEIVE_ACK_BLOCK, XMODEM_RECEIVE_VALID_BLOCK,
                     XMODEM_RECEIVE_UNKNOWN } typedef xmodem_receive_state_t;
 
+#define XMODEM_BLOCK_SIZE 128
 
-static const uint8_t  XMODEM_BLOCK_SIZE  = 128;   // fixed block size 
+//static const uint8_t  XMODEM_BLOCK_SIZE  = 128;   // fixed block size 
 
 typedef struct
 {
