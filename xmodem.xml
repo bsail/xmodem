@@ -2,7 +2,7 @@
 <manifest>
 
    <remote name="github"
-           fetch="ssh://github.com" />
+           fetch="https://github.com" />
 
   
    <project name="caseykelso/ringbuffer"                    remote="github"  path="ringbuffer" revision="master" />  
