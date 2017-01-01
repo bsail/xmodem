@@ -39,7 +39,8 @@ bool xmodem_calculate_crc(const uint8_t *data, const uint32_t size, uint16_t *re
 
 	   while (0 < count--)
 	   {
-	      crc = crc ^ (uint16_t) *data++ << 8;
+	      crc = crc ^ (uint16_t) *data << 8;
+              data++;
 	      i = 8;
 
 	      do
@@ -70,7 +71,7 @@ bool xmodem_verify_packet(const xmodem_packet_t packet, uint8_t expected_packet_
     bool     crc_status     = false;
     uint16_t calculated_crc = 0;
 
-    crc_status = xmodem_calculate_crc(packet.data, XMODEM_BLOCK_SIZE, &calculated_crc);
+    crc_status = xmodem_calculate_crc(packet.data, packet.data_size, &calculated_crc);
 
     if (packet.preamble == SOH &&
         packet.id == expected_packet_id &&

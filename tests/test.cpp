@@ -67,9 +67,17 @@ TEST_F(XModemTests, XMODEM_VERIFY_PACKET)
    EXPECT_EQ(false, xmodem_verify_packet(p, 1));
 
    p.id_complement = 0xFF - p.id;
+   p.crc           = 0;
+   p.data_size     = 0;
+   EXPECT_EQ(true, xmodem_verify_packet(p, 1));
+
+   p.crc       = 0xBB3D; 
+   p.data_size = 0;
    EXPECT_EQ(false, xmodem_verify_packet(p, 1));
 
-   p.crc = 0xBB3D; 
+//   p.crc       = 0x2378; // actual calculated value
+   p.crc       = 0xBB3D;   // calculated expected value, is this correct for 1,2,3,4,5,6,7,8,9?
+   p.data_size = 9;
    EXPECT_EQ(true, xmodem_verify_packet(p, 1));
 
    //bool xmodem_verify_packet(const xmodem_packet_t packet, uint8_t expected_packet_id)
