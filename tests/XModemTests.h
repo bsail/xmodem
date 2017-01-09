@@ -14,23 +14,23 @@ extern "C" {
 #define BUFFER_SIZE          1024
 
 /* Setup dummy functions for mocking out callbacks */
-static bool     inbound_empty           = false;
-static bool     result_inbound_buffer   = false;
-static uint32_t returned_inbound_size   = 0;
-static uint8_t  inbound_buffer[INBOUND_BUFFER_SIZE];
-static uint32_t requested_inbound_size  = 0;
+static bool     transmitter_inbound_empty           = false;
+static bool     transmitter_result_inbound_buffer   = false;
+static uint32_t transmitter_returned_inbound_size   = 0;
+static uint8_t  transmitter_inbound_buffer[INBOUND_BUFFER_SIZE];
+static uint32_t transmitter_requested_inbound_size  = 0;
 
-static bool     outbound_full           = false;
-static bool     result_outbound_buffer  = false;
-static uint32_t returned_outbound_size  = 0;
-static uint8_t  outbound_buffer[OUTBOUND_BUFFER_SIZE];
-static uint32_t requested_outbound_size = 0;
-static uint8_t  block_counter           = 0;
-static uint8_t  tmp = 0;
-static uint8_t  buffer[BUFFER_SIZE];
-static uint32_t buffer_position         = 0;
-static uint32_t timer                   = 0;
-static uint8_t  packet_number           = 0;
+static bool     transmitter_outbound_full           = false;
+static bool     transmitter_result_outbound_buffer  = false;
+static uint32_t transmitter_returned_outbound_size  = 0;
+static uint8_t  transmitter_outbound_buffer[OUTBOUND_BUFFER_SIZE];
+static uint32_t transmitter_requested_outbound_size = 0;
+static uint8_t  transmitter_block_counter           = 0;
+static uint8_t  transmitter_tmp                     = 0;
+static uint8_t  transmitter_buffer[BUFFER_SIZE];
+static uint32_t transmitter_buffer_position         = 0;
+static uint32_t transmitter_timer                   = 0;
+static uint8_t  transmitter_packet_number           = 0;
 
 
 
@@ -79,24 +79,24 @@ bool generate_document(uint8_t* const storage, const uint32_t length )
 virtual void SetUp()
 {
 
-    memset(inbound_buffer, 0, INBOUND_BUFFER_SIZE);
-    memset(outbound_buffer, 0, OUTBOUND_BUFFER_SIZE);
+    memset(transmitter_inbound_buffer, 0, INBOUND_BUFFER_SIZE);
+    memset(transmitter_outbound_buffer, 0, OUTBOUND_BUFFER_SIZE);
 
-    inbound_empty           = false;
-    result_inbound_buffer   = false; 
-    returned_inbound_size   = 0; 
-    requested_inbound_size  = 0; 
-    outbound_full           = false;
-    result_outbound_buffer  = false;
-    returned_outbound_size  = 0;
-    requested_outbound_size = 0;
-    block_counter           = 0;
+    transmitter_inbound_empty           = false;
+    transmitter_result_inbound_buffer   = false; 
+    transmitter_returned_inbound_size   = 0; 
+    transmitter_requested_inbound_size  = 0; 
+    transmitter_outbound_full           = false;
+    transmitter_result_outbound_buffer  = false;
+    transmitter_returned_outbound_size  = 0;
+    transmitter_requested_outbound_size = 0;
+    transmitter_block_counter           = 0;
 
     /* generate random document to send */
-    generate_document(buffer, 1024);
-    buffer_position         = 0;
-    timer                   = 0;
-    packet_number           = 1; //xmodem counts from 1 
+    generate_document(transmitter_buffer, 1024);
+    transmitter_buffer_position         = 0;
+    transmitter_timer                   = 0;
+    transmitter_packet_number           = 1; //xmodem counts from 1 
 
 }
 
