@@ -13,3 +13,5 @@ ringbuffer/
 serialport/
 build.serialport
 build.app
+docopt
+build.docopt

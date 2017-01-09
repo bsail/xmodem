@@ -12,10 +12,13 @@
 <property name="build"                    value="${basedir}/build" />
 <property name="app.build"                value="${basedir}/build.app" />
 <property name="app.dir"                  value="${basedir}/app" />
+<property name="docopt.build"             value="${basedir}/build.docopt" />
+<property name="docopt.dir"               value="${basedir}/docopt" />
 <property name="serialport.build"         value="${basedir}/build.serialport" />
 <property name="serialport.dir"           value="${basedir}/serialport" />
 
-<target name="all" depends="cmake, gtest, tests, serialport" />
+<target name="all_lib" depends="cmake, gtest, xmodem" />
+<target name="all_app" depends="all_lib, serialport, docopt, app" />
 
 <target name="cmake">
   <exec executable="./configure" dir="${cmake.dir}" failonerror="true">
@@ -135,6 +138,27 @@ On OSX el capitan and later, be sure to disable System Integrity Protection:
   </exec>
 
   <exec executable="make" dir="${app.build}" failonerror="true">
+    <arg value="install" />
+  </exec>
+</target>
+
+
+<target name="docopt">
+  <delete dir="${docopt.build}" />
+  <mkdir  dir="${docopt.build}" />
+
+  <exec executable="${cmake.bin}" dir="${docopt.build}" failonerror="true" >
+    <arg value="-DCMAKE_INSTALL_PREFIX=${install.host.dir}" />
+    <arg value="-DCMAKE_BUILD_TYPE=Debug" />
+    <arg value="-DCMAKE_INCLUDE_PATH=${install.host.dir}/include" />
+    <arg value="-DCMAKE_LIBRARY_PATH=${install.host.dir}/lib" />
+    <arg value="${docopt.dir}" />
+  </exec>
+
+  <exec executable="make" dir="${docopt.build}" failonerror="true">
+  </exec>
+
+  <exec executable="make" dir="${docopt.build}" failonerror="true">
     <arg value="install" />
   </exec>
 </target>
