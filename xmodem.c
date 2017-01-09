@@ -159,6 +159,35 @@ bool xmodem_cleanup()
 bool xmodem_receive_process(const uint32_t current_time)
 {
    static uint32_t stopwatch = 0;
+
+   switch(receive_state)
+   {
+
+      case XMODEM_RECEIVE_INITIAL:
+      {
+         receive_state = XMODEM_RECEIVE_WAIT_FOR_NACK;
+         break;
+      }
+
+      case XMODEM_RECEIVE_WAIT_FOR_NACK:
+      {
+         receive_state = XMODEM_RECEIVE_SEND_REQUEST_FOR_TRANSFER;
+         break;
+      }
+
+      case XMODEM_RECEIVE_UNKNOWN:
+      {
+          transmit_state = XMODEM_RECEIVE_ABORT;
+          break;
+      }
+
+      default:
+      {
+          transmit_state = XMODEM_RECEIVE_UNKNOWN; 
+      }
+
+   };
+
    return false;
     
 }
