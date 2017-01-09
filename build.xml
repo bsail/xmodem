@@ -76,8 +76,8 @@ On OSX el capitan and later, be sure to disable System Integrity Protection:
 -->
 <target name="socat">
  <exec executable="socat" dir="${build}" failonerror="true">
-   <arg value="PTY,link=/dev/ttyhost" />
-   <arg value="PTY,link=/dev/ttyembedded" />
+   <arg value="PTY,mode=666,link=/dev/ttyhost" />
+   <arg value="PTY,mode=666,link=/dev/ttyembedded" />
  </exec>
 </target>
 
