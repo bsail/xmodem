@@ -10,6 +10,8 @@
 <property name="tests.build"              value="${basedir}/build.tests" />
 <property name="test.bin"                 value="${install.host.dir}/bin/xmodem_test" />
 <property name="build"                    value="${basedir}/build" />
+<property name="app.build"                value="${basedir}/build.app" />
+<property name="app.dir"                  value="${basedir}/app" />
 <property name="serialport.build"         value="${basedir}/build.serialport" />
 <property name="serialport.dir"           value="${basedir}/serialport" />
 
@@ -116,6 +118,28 @@ On OSX el capitan and later, be sure to disable System Integrity Protection:
     <arg value="install" />
   </exec>
 </target>
+
+<target name="app">
+  <delete dir="${app.build}" />
+  <mkdir  dir="${app.build}" />
+
+  <exec executable="${cmake.bin}" dir="${app.build}" failonerror="true" >
+    <arg value="-DCMAKE_INSTALL_PREFIX=${install.host.dir}" />
+    <arg value="-DCMAKE_BUILD_TYPE=Debug" />
+    <arg value="-DCMAKE_INCLUDE_PATH=${install.host.dir}/include" />
+    <arg value="-DCMAKE_LIBRARY_PATH=${install.host.dir}/lib" />
+    <arg value="${app.dir}" />
+  </exec>
+
+  <exec executable="make" dir="${app.build}" failonerror="true">
+  </exec>
+
+  <exec executable="make" dir="${app.build}" failonerror="true">
+    <arg value="install" />
+  </exec>
+</target>
+
+
 
 <target name="tests" depends="xmodem" >
 

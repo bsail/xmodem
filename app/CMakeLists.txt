@@ -1,0 +1,28 @@
+cmake_minimum_required (VERSION 2.8.10.2)
+project(xmodem_app)
+
+set(APP_XMODEM 0)
+set(APP_XMODEM 1)
+
+if(NOT DEFINED CMAKE_BUILD_TYPE)
+set(CMAKE_BUILD_TYPE )
+endif(NOT DEFINED CMAKE_BUILD_TYPE)
+
+if(!TARGET_BUILD)
+if(APPLE)
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -std=c11")
+set(CMAKE_CXX_FLAGS_DEBUG   "-O0 -g -std=c11")
+else(APPLE)
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -std=c11")
+set(CMAKE_CXX_FLAGS_DEBUG   "-O0 -ggdb -g3 -std=c11")
+endif(APPLE)
+endif(!TARGET_BUILD)
+
+set(XMODEM_APP_SOURCE_FILES main.cpp)
+include_directories(${CMAKE_INCLUDE_PATH})
+link_directories(${CMAKE_LIBRARY_PATH})
+add_executable(x ${XMODEM_APP_SOURCE_FILES})
+target_link_libraries(x xmodem serialport)
+install(TARGETS x DESTINATION bin)
+
+

@@ -16,7 +16,7 @@
    <project name="google/googletest.git"                    remote="github"  path="gtest"  clone-depth="1"   revision="master"  />
    <project name="Kitware/CMake.git"                        remote="github"  path="cmake"  clone-depth="1"   revision="master"  />
    <project name="libserialport"                            remote="amazon"  path="serialport" revision="master" />
-
+   <project name="docopt/docopt.cpp"                        remote="github"  path="docopt" clone-depth="1" revision="master" />
 
 </manifest>
 

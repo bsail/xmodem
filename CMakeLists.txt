@@ -23,7 +23,6 @@ set(XMODEM_HEADERS source/xmodem.h source/xmodem_transmitter.h source/xmodem_rec
 set(XMODEM_PUBLIC_HEADERS source/xmodem.h source/xmodem_transmitter.h source/xmodem_receiver.h)
 
 add_library(xmodem STATIC ${XMODEM_SOURCE_FILES} ${XMODEM_HEADERS} )
-
 install(TARGETS xmodem DESTINATION lib)
 install(FILES ${XMODEM_PUBLIC_HEADERS} DESTINATION include/xmodem)
 

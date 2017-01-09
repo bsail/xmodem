@@ -12,3 +12,4 @@ ringbuffer/
 .ant-targets-build.xml
 serialport/
 build.serialport
+build.app
