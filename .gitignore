@@ -10,5 +10,4 @@ gtest/
 installed.host/
 ringbuffer/
 .ant-targets-build.xml
-asio/
-serial/
+serialport/

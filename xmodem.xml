@@ -15,8 +15,8 @@
    <project name="mutex.io.xmodem"                          remote="amazon"  path="." revision="master" />
    <project name="google/googletest.git"                    remote="github"  path="gtest"  clone-depth="1"   revision="master"  />
    <project name="Kitware/CMake.git"                        remote="github"  path="cmake"  clone-depth="1"   revision="master"  />
-   <project name="chriskohlhoff/asio"                       remote="github"  path="asio"   clone-depth="1"   revision="master" />
-   <project name="wjwwood/serial"                           remote="github"  path="serial" clone-depth="1"   revision="master" />
+   <project name="libserialport"                            remote="amazon"  path="serialport" revision="master" />
+
 
 </manifest>
 
