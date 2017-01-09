@@ -240,31 +240,40 @@ TEST_F(XModemTests, XMODEM_TRANSMIT_WRITE_DOCUMENT)
 
 
 
-#if 0
 
 TEST_F(XModemTests, XMODEM_TIMEOUT_TRANSFER_ACK)
 {
 
-  EXPECT_EQ(false, xmodem_init());
-  EXPECT_EQ(XMODEM_UNKNOWN, xmodem_state());
+  EXPECT_EQ(false, xmodem_transmit_init(buffer, BUFFER_SIZE));
+  EXPECT_EQ(XMODEM_TRANSMIT_UNKNOWN, xmodem_transmit_state());
+
+  EXPECT_EQ(false, xmodem_receive_init());
+  EXPECT_EQ(XMODEM_RECEIVE_UNKNOWN, xmodem_receive_state());
 
   xmodem_set_callback_write(&write_data);
   xmodem_set_callback_read(&read_data);
   xmodem_set_callback_is_outbound_full(&is_outbound_full);
   xmodem_set_callback_is_inbound_empty(&is_inbound_empty);
 
-  EXPECT_EQ(true, xmodem_init());
-  EXPECT_EQ(XMODEM_INITIAL, xmodem_state());
+
+  EXPECT_EQ(true, xmodem_transmit_init(buffer, BUFFER_SIZE));
+  EXPECT_EQ(XMODEM_TRANSMIT_INITIAL, xmodem_transmit_state());
+
+  EXPECT_EQ(true, xmodem_receive_init());
+  EXPECT_EQ(XMODEM_RECEIVE_INITIAL, xmodem_receive_state());
+
 
   for (int i = 0; i < 20; ++i)
   {  
-    EXPECT_EQ(true, xmodem_process(0));
-    EXPECT_EQ(XMODEM_WAIT_FOR_NACK, xmodem_state());
+    EXPECT_EQ(true, xmodem_receive_process(0));
+    EXPECT_EQ(XMODEM_RECEIVE_WAIT_FOR_NACK, xmodem_receive_state());
   }
 
   returned_inbound_size = 1; 
   inbound_buffer[0] = NACK;
 
+
+#if 0
    
   // attempt to send a SOH control character, but the outbound buffer is full 
   returned_outbound_size = 0;
@@ -301,11 +310,11 @@ TEST_F(XModemTests, XMODEM_TIMEOUT_TRANSFER_ACK)
   tmp = CAN; 
   EXPECT_EQ(0, memcmp(outbound_buffer, &tmp, 1));
   EXPECT_EQ(true, xmodem_cleanup());
-
+#endif
 }
 
 
-
+#if 0
 TEST_F(XModemTests, XMODEM_TIMEOUT_WAIT_READ_BLOCK)
 {
   xmodem_set_callback_write(&write_data);

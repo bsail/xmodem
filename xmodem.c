@@ -156,6 +156,13 @@ bool xmodem_cleanup()
    return true;
 }
 
+bool xmodem_receive_process(const uint32_t current_time)
+{
+   static uint32_t stopwatch = 0;
+   return false;
+    
+}
+
 bool xmodem_transmit_process(const uint32_t current_time)
 {
 
