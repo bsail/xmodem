@@ -5,7 +5,11 @@
            fetch="https://github.com" />
 
    <remote name="amazon"
-           fetch="ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/" />
+           fetch="ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos" />
+
+   <default revision="master"
+            remote="amazon"
+            sync-j="8" />
   
    <project name="caseykelso/ringbuffer"                    remote="github"  path="ringbuffer" revision="master" />  
    <project name="mutex.io.xmodem"                          remote="amazon"  path="." revision="master" />
