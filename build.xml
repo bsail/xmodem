@@ -10,8 +10,10 @@
 <property name="tests.build"              value="${basedir}/build.tests" />
 <property name="test.bin"                 value="${install.host.dir}/bin/xmodem_test" />
 <property name="build"                    value="${basedir}/build" />
+<property name="serialport.build"         value="${basedir}/build.serialport" />
+<property name="serialport.dir"           value="${basedir}/serialport" />
 
-<target name="all" depends="cmake, gtest, tests" />
+<target name="all" depends="cmake, gtest, tests, serialport" />
 
 <target name="cmake">
   <exec executable="./configure" dir="${cmake.dir}" failonerror="true">
@@ -36,6 +38,22 @@
       <arg value="install" />
    </exec>  
 </target>
+
+<target name="serialport">
+   <delete dir="${serialport.build}" />
+   <mkdir dir="${serialport.build}" />
+   <exec executable="${cmake.bin}" dir="${serialport.build}">
+      <arg value="-DCMAKE_INSTALL_PREFIX=${install.host.dir}" />
+      <arg value="${serialport.dir}" />
+   </exec> 
+   
+   <exec executable="make" dir="${serialport.build}">
+      <arg value="-j8" />
+      <arg value="install" />
+   </exec>  
+</target>
+
+
 
 <target name="clean">
   <delete dir="${tests.build}" />
