@@ -15,7 +15,7 @@ Build Application
 -----------------
 mkdir xmodem<br/>
 cd xmodem<br/>
-repo init -m xmodem.xml -u git://github.com/caseykelso/xmodem.git<br/>
+repo init -m xmodem.xml -u ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/mutex.io.xmodem<br/>
 
 Build Library - HLOS
 ------------------
