@@ -67,7 +67,19 @@
   </exec>
 </target>
 
-
+<!--
+On OSX el capitan and later, be sure to disable System Integrity Protection:
+1. Reboot with CONTROL-R held down.
+2. Open a terminal
+3. csrutil disable
+4. reboot
+-->
+<target name="socat">
+ <exec executable="socat" dir="${build}" failonerror="true">
+   <arg value="/dev/ttyembedded,raw,echo=0,crnl" />
+   <arg value="/dev/ttyhost,raw,echo=0,crnl" />
+ </exec>
+</target>
 
 <target name="xmodem">
   <delete dir="${build}" />
