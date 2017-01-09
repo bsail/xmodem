@@ -95,10 +95,10 @@ TEST_F(XModemTests, XMODEM_TRANSMIT_TIMEOUT_WAIT_WRITE_BLOCK)
   EXPECT_EQ(false, xmodem_transmit_init(buffer, BUFFER_SIZE));
   EXPECT_EQ(XMODEM_TRANSMIT_UNKNOWN, xmodem_transmit_state());
 
-  xmodem_set_callback_write(&write_data);
-  xmodem_set_callback_read(&read_data);
-  xmodem_set_callback_is_outbound_full(&is_outbound_full);
-  xmodem_set_callback_is_inbound_empty(&is_inbound_empty);
+  xmodem_transmitter_set_callback_write(&write_data);
+  xmodem_transmitter_set_callback_read(&read_data);
+  xmodem_transmitter_set_callback_is_outbound_full(&is_outbound_full);
+  xmodem_transmitter_set_callback_is_inbound_empty(&is_inbound_empty);
 
   EXPECT_EQ(true, xmodem_transmit_init(buffer, BUFFER_SIZE));
   EXPECT_EQ(XMODEM_TRANSMIT_INITIAL, xmodem_transmit_state());
@@ -119,7 +119,7 @@ TEST_F(XModemTests, XMODEM_TRANSMIT_TIMEOUT_WAIT_WRITE_BLOCK)
 
   EXPECT_EQ(true, xmodem_transmit_process(2));
  
-  xmodem_cleanup(); 
+  xmodem_transmitter_cleanup(); 
 
 }
 
@@ -130,10 +130,10 @@ TEST_F(XModemTests, XMODEM_TRANSMIT_WRITE_BLOCK)
   EXPECT_EQ(false, xmodem_transmit_init(buffer, BUFFER_SIZE));
   EXPECT_EQ(XMODEM_TRANSMIT_UNKNOWN, xmodem_transmit_state());
 
-  xmodem_set_callback_write(&write_data);
-  xmodem_set_callback_read(&read_data);
-  xmodem_set_callback_is_outbound_full(&is_outbound_full);
-  xmodem_set_callback_is_inbound_empty(&is_inbound_empty);
+  xmodem_transmitter_set_callback_write(&write_data);
+  xmodem_transmitter_set_callback_read(&read_data);
+  xmodem_transmitter_set_callback_is_outbound_full(&is_outbound_full);
+  xmodem_transmitter_set_callback_is_inbound_empty(&is_inbound_empty);
 
   EXPECT_EQ(true, xmodem_transmit_init(buffer, BUFFER_SIZE));
   EXPECT_EQ(XMODEM_TRANSMIT_INITIAL, xmodem_transmit_state());
@@ -175,7 +175,7 @@ TEST_F(XModemTests, XMODEM_TRANSMIT_WRITE_BLOCK)
 
   EXPECT_EQ(XMODEM_TRANSMIT_COMPLETE, xmodem_transmit_state());
 #endif
-  xmodem_cleanup(); 
+  xmodem_transmitter_cleanup(); 
 
 }
 
@@ -185,10 +185,10 @@ TEST_F(XModemTests, XMODEM_TRANSMIT_WRITE_DOCUMENT)
   EXPECT_EQ(false, xmodem_transmit_init(buffer, BUFFER_SIZE));
   EXPECT_EQ(XMODEM_TRANSMIT_UNKNOWN, xmodem_transmit_state());
 
-  xmodem_set_callback_write(&write_data);
-  xmodem_set_callback_read(&read_data);
-  xmodem_set_callback_is_outbound_full(&is_outbound_full);
-  xmodem_set_callback_is_inbound_empty(&is_inbound_empty);
+  xmodem_transmitter_set_callback_write(&write_data);
+  xmodem_transmitter_set_callback_read(&read_data);
+  xmodem_transmitter_set_callback_is_outbound_full(&is_outbound_full);
+  xmodem_transmitter_set_callback_is_inbound_empty(&is_inbound_empty);
 
   EXPECT_EQ(true, xmodem_transmit_init(buffer, BUFFER_SIZE));
   EXPECT_EQ(XMODEM_TRANSMIT_INITIAL, xmodem_transmit_state());
@@ -215,7 +215,7 @@ TEST_F(XModemTests, XMODEM_TRANSMIT_WRITE_DOCUMENT)
      EXPECT_EQ(true, xmodem_transmit_process(timer));
 
   while (xmodem_transmit_state() != XMODEM_TRANSMIT_COMPLETE &&
-         xmodem_transmit_state() != XMODEM_TRANSMIT_ABORT)
+         xmodem_transmit_state() != XMODEM_TRANSMIT_ABORT_TRANSFER)
   {
      ++timer;
      EXPECT_EQ(outbound_buffer[0], SOH);
@@ -234,12 +234,12 @@ TEST_F(XModemTests, XMODEM_TRANSMIT_WRITE_DOCUMENT)
   EXPECT_EQ(true, xmodem_transmit_process(timer));
   EXPECT_EQ(XMODEM_TRANSMIT_COMPLETE, xmodem_transmit_state());
   EXPECT_EQ(outbound_buffer[0], EOT); 
-  xmodem_cleanup(); 
+  xmodem_transmitter_cleanup(); 
 
 }
 
 
-
+#if 0
 
 TEST_F(XModemTests, XMODEM_TIMEOUT_TRANSFER_ACK)
 {
@@ -250,10 +250,10 @@ TEST_F(XModemTests, XMODEM_TIMEOUT_TRANSFER_ACK)
   EXPECT_EQ(false, xmodem_receive_init());
   EXPECT_EQ(XMODEM_RECEIVE_UNKNOWN, xmodem_receive_state());
 
-  xmodem_set_callback_write(&write_data);
-  xmodem_set_callback_read(&read_data);
-  xmodem_set_callback_is_outbound_full(&is_outbound_full);
-  xmodem_set_callback_is_inbound_empty(&is_inbound_empty);
+  xmodem_transmitter_set_callback_write(&write_data);
+  xmodem_transmitter_set_callback_read(&read_data);
+  xmodem_transmitter_set_callback_is_outbound_full(&is_outbound_full);
+  xmodem_transmitter_set_callback_is_inbound_empty(&is_inbound_empty);
 
 
   EXPECT_EQ(true, xmodem_transmit_init(buffer, BUFFER_SIZE));
@@ -273,7 +273,7 @@ TEST_F(XModemTests, XMODEM_TIMEOUT_TRANSFER_ACK)
   inbound_buffer[0] = NACK;
 
 
-#if 0
+//#if 0
    
   // attempt to send a SOH control character, but the outbound buffer is full 
   returned_outbound_size = 0;
@@ -310,9 +310,9 @@ TEST_F(XModemTests, XMODEM_TIMEOUT_TRANSFER_ACK)
   tmp = CAN; 
   EXPECT_EQ(0, memcmp(outbound_buffer, &tmp, 1));
   EXPECT_EQ(true, xmodem_cleanup());
-#endif
 }
 
+#endif
 
 #if 0
 TEST_F(XModemTests, XMODEM_TIMEOUT_WAIT_READ_BLOCK)

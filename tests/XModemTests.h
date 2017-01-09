@@ -5,6 +5,8 @@
 #include <string.h>
 extern "C" {
 #include "xmodem/xmodem.h"
+#include "xmodem/xmodem_transmitter.h"
+#include "xmodem/xmodem_receiver.h"
 }
 
 #define INBOUND_BUFFER_SIZE  1024

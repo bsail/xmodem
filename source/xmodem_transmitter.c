@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "xmodem.h"
-
+#include "xmodem_transmitter.h"
 
 static bool (*callback_is_inbound_empty)();
 static bool (*callback_is_outbound_full)();
@@ -10,8 +10,8 @@ static bool (*callback_read_data)(const uint32_t requested_size, uint8_t *buffer
 static bool (*callback_write_data)(const uint32_t requested_size, uint8_t *buffer, uint32_t *returned_size);
 
 
+
 static xmodem_transmit_state_t transmit_state;
-static xmodem_receive_state_t receive_state;
 
 static const uint32_t  TRANSFER_ACK_TIMEOUT    = 60000; // 60 seconds
 static const uint32_t  READ_BLOCK_TIMEOUT      = 60000; // 60 seconds
@@ -25,75 +25,10 @@ static uint8_t         current_packet_id       = 0;
 static xmodem_packet_t current_packet;
 
 
-bool xmodem_calculate_crc(const uint8_t *data, const uint32_t size, uint16_t *result)
-{
-
-   uint16_t crc    = 0x0;
-   uint32_t count  = size;
-   bool     status = false;
-   uint8_t  i      = 0;
-
-   if (0 != data && 0 != result)
-   {
-           status = true;
-
-	   while (0 < count--)
-	   {
-	      crc = crc ^ (uint16_t) *data << 8;
-              data++;
-	      i = 8;
-
-	      do
-	      {
-		  if (0x8000 & crc)
-		  {
-		     crc = crc << 1 ^ 0x1021;
-		  }
-		  else
-		  {
-		     crc = crc << 1;
-		  }
-
-	      } 
-	      while (0 < --i);
-
-	   }
-           
-           *result = crc;
-   }
-
-   return status;
-}
-
-bool xmodem_verify_packet(const xmodem_packet_t packet, uint8_t expected_packet_id)
-{
-    bool     status         = false;
-    bool     crc_status     = false;
-    uint16_t calculated_crc = 0;
-
-    crc_status = xmodem_calculate_crc(packet.data, packet.data_size, &calculated_crc);
-
-    if (packet.preamble == SOH &&
-        packet.id == expected_packet_id &&
-        packet.id_complement == 0xFF - packet.id &&
-        crc_status &&
-        calculated_crc == packet.crc)
-    {
-       status = true;
-    }
-
-    return status;
-}
-
 
 xmodem_transmit_state_t xmodem_transmit_state()
 {
    return transmit_state;
-}
-
-xmodem_receive_state_t xmodem_receive_state()
-{
-   return receive_state;
 }
 
 bool xmodem_transmit_init(uint8_t *buffer, uint32_t size)
@@ -121,31 +56,12 @@ bool xmodem_transmit_init(uint8_t *buffer, uint32_t size)
 }
 
 
-bool xmodem_receive_init()
-{
-  
-   bool result          = false; 
-   receive_state        = XMODEM_RECEIVE_UNKNOWN;
-
-   if (0 != callback_is_inbound_empty &&
-       0 != callback_is_outbound_full  &&
-       0 != callback_read_data &&
-       0 != callback_write_data)
-   {
-      receive_state   = XMODEM_RECEIVE_INITIAL;
-      result = true;
-   }
-
-   return result;
-}
-
-bool xmodem_cleanup()
+bool xmodem_transmitter_cleanup()
 {
    callback_is_inbound_empty = 0;
    callback_is_outbound_full = 0;
    callback_read_data        = 0;
    callback_write_data       = 0;
-   receive_state             = XMODEM_RECEIVE_UNKNOWN;
    transmit_state            = XMODEM_TRANSMIT_UNKNOWN; 
    payload_buffer_position   = 0;
    payload_buffer            = 0;
@@ -156,41 +72,6 @@ bool xmodem_cleanup()
    return true;
 }
 
-bool xmodem_receive_process(const uint32_t current_time)
-{
-   static uint32_t stopwatch = 0;
-
-   switch(receive_state)
-   {
-
-      case XMODEM_RECEIVE_INITIAL:
-      {
-         receive_state = XMODEM_RECEIVE_WAIT_FOR_NACK;
-         break;
-      }
-
-      case XMODEM_RECEIVE_WAIT_FOR_NACK:
-      {
-         receive_state = XMODEM_RECEIVE_SEND_REQUEST_FOR_TRANSFER;
-         break;
-      }
-
-      case XMODEM_RECEIVE_UNKNOWN:
-      {
-          transmit_state = XMODEM_RECEIVE_ABORT;
-          break;
-      }
-
-      default:
-      {
-          transmit_state = XMODEM_RECEIVE_UNKNOWN; 
-      }
-
-   };
-
-   return false;
-    
-}
 
 bool xmodem_transmit_process(const uint32_t current_time)
 {
@@ -317,7 +198,7 @@ bool xmodem_transmit_process(const uint32_t current_time)
 
 #endif
 
-      case XMODEM_TRANSMIT_ABORT:
+      case XMODEM_TRANSMIT_ABORT_TRANSFER:
       {
           control_character = CAN; 
           callback_write_data(1, &control_character, &returned_size);  
@@ -406,7 +287,7 @@ bool xmodem_transmit_process(const uint32_t current_time)
 
       case XMODEM_TRANSMIT_UNKNOWN:
       {
-          transmit_state = XMODEM_TRANSMIT_ABORT;
+          transmit_state = XMODEM_TRANSMIT_ABORT_TRANSFER;
           break;
       }
 
@@ -423,22 +304,22 @@ bool xmodem_transmit_process(const uint32_t current_time)
 
 
 
-void xmodem_set_callback_write(bool (*callback)(const uint32_t requested_size, uint8_t *buffer, uint32_t *returned_size))
+void xmodem_transmitter_set_callback_write(bool (*callback)(const uint32_t requested_size, uint8_t *buffer, uint32_t *returned_size))
 {
    callback_write_data = callback;
 }
 
-void xmodem_set_callback_read(bool (*callback)(const uint32_t requested_size, uint8_t *buffer, uint32_t *returned_size))
+void xmodem_transmitter_set_callback_read(bool (*callback)(const uint32_t requested_size, uint8_t *buffer, uint32_t *returned_size))
 {
    callback_read_data = callback;
 }
 
-void xmodem_set_callback_is_outbound_full(bool (*callback)())
+void xmodem_transmitter_set_callback_is_outbound_full(bool (*callback)())
 {
    callback_is_outbound_full = callback;
 }
 
-void xmodem_set_callback_is_inbound_empty(bool (*callback)())
+void xmodem_transmitter_set_callback_is_inbound_empty(bool (*callback)())
 {
    callback_is_inbound_empty = callback;
 }
