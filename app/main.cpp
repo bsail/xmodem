@@ -9,12 +9,17 @@
 #include <string>
 #include <unistd.h>
 
-void transmit(std::string port_name, std::string baud)
+void transmit(std::string port_name, std::string baud, bool socat)
 {
    struct sp_port *port;
    port = new struct sp_port(); 
 
    auto result = sp_get_port_by_name(port_name.c_str(), &port); 
+
+   if (socat)
+   {
+      port->transport = SP_TRANSPORT_PTY;
+   }
 
    if (SP_OK == result)
    {
@@ -33,27 +38,30 @@ void transmit(std::string port_name, std::string baud)
       std::cout << "transmit: error configuring port " << port_name << " error: " << result << std::endl;
 
    }
-
-   char buffer[2048];
-   strcpy(buffer, "*");
-   uint16_t bytes_written = 0;
-
-   while(1)
+   
+   if (0 == result)
    {
-      bytes_written = sp_blocking_write(port, buffer, 1, 2000);
+	   char buffer[2048];
+	   strcpy(buffer, "*");
+	   uint16_t bytes_written = 0;
 
-      if (bytes_written > 0)
-      {
-         std::cout << "block write: ";
-         std::cout << std::endl;
-      }
-      sleep(2);
+	   while(1)
+	   {
+	      bytes_written = sp_blocking_write(port, buffer, 1, 2000);
+
+	      if (bytes_written > 0)
+	      {
+		 std::cout << "block write: ";
+		 std::cout << std::endl;
+	      }
+	      sleep(2);
+	   }
+	   std::cout << "transmit: " << port_name << "," << baud << std::endl;
    }
-   std::cout << "transmit: " << port_name << "," << baud << std::endl;
    delete port;
 }
 
-void receive(std::string port_name, std::string baud)
+void receive(std::string port_name, std::string baud, bool socat)
 {
    struct sp_port *port;
    port = new struct sp_port(); 
@@ -62,6 +70,11 @@ void receive(std::string port_name, std::string baud)
 //   port.name = port_path;
 
    auto result = sp_get_port_by_name(port_name.c_str(), &port); 
+
+   if (socat)
+   {
+      port->transport = SP_TRANSPORT_PTY;
+   }
 
    if (SP_OK == result)
    {
@@ -81,25 +94,28 @@ void receive(std::string port_name, std::string baud)
 
    }
 
-   char buffer[2048];
-   uint16_t bytes_read = 0;
-
-   while(1)
+   if (0 == result)
    {
-      bytes_read = sp_blocking_read(port, buffer, 2048, 1000);
+	   char buffer[2048];
+	   uint16_t bytes_read = 0;
 
-      if (bytes_read > 0)
-      {
-         std::cout << "block read: ";
-         uint8_t i = 0;
-         for (int i = 0; i < bytes_read; ++i)
-         {
-            std::cout << buffer[i];
-         } 
-         std::cout << std::endl;
-      }
-      sleep(2);
-   }
+	   while(1)
+	   {
+	      bytes_read = sp_blocking_read(port, buffer, 2048, 1000);
+
+	      if (bytes_read > 0)
+	      {
+		 std::cout << "block read: ";
+		 uint8_t i = 0;
+		 for (int i = 0; i < bytes_read; ++i)
+		 {
+		    std::cout << buffer[i];
+		 } 
+		 std::cout << std::endl;
+	      }
+	      sleep(2);
+	   }
+  }
   delete port; 
 }
 
@@ -145,8 +161,8 @@ int main (int argc, char **argv )
 	R"(nanoXmodem.
 
 	    Usage:
-	      x --port=<port> --receive [--baud=<baudrate>]
-	      x --port=<port> --transmit --file=<filename> [--baud=<baudrate>]
+	      x --port=<port> --receive [--baud=<baudrate>] [--socat]
+	      x --port=<port> --transmit --file=<filename> [--baud=<baudrate>] [--socat]
               x --enumerate
 	      x (-h | --help)
 	      x --version
@@ -159,6 +175,7 @@ int main (int argc, char **argv )
 	      --receive           Start transfer as receiver.
 	      --transmit          Start file transmission.
               --enumerate         Enumerate list of available ports.
+              --socat             Using a socat virtual comport
 	      --file=<filename>   File to send.
 	)";
 
@@ -171,6 +188,7 @@ int main (int argc, char **argv )
   bool transmit_found  = false;
   bool receive_found   = false;
   bool enumerate_found = false;
+  bool socat_found     = false;
  
   auto arg = args.find("--transmit");
 
@@ -202,6 +220,15 @@ int main (int argc, char **argv )
      }
   }
 
+  arg = args.find("--socat");
+  if(arg != args.end())
+  { 
+     if (arg->second.isBool())
+     {
+        socat_found = arg->second.asBool();
+     }
+  }
+
     if (transmit_found)
     {
     std::string port = "";
@@ -211,7 +238,7 @@ int main (int argc, char **argv )
 
 	    if (get_port(args, port))
 	    {
-		    transmit(port, baud);
+		    transmit(port, baud, socat_found);
 	    }
 	    else
 	    {
@@ -228,7 +255,7 @@ int main (int argc, char **argv )
     get_baud(args, baud);
     if (get_port(args, port))
     {
-	    receive(port, baud);
+	    receive(port, baud, socat_found);
     }
     else
     {
