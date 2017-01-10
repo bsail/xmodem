@@ -33,6 +33,35 @@ bool read_file_to_buffer(std::string file_path, std::vector<char>& buffer) {
     return true;
 }
 
+
+bool write_buffer_to_file(std::string file_path, std::vector<char>& buffer)
+{
+  std::ofstream file (file_path, std::ofstream::out);
+
+  for (std::vector<char>::const_iterator ii = buffer.begin(); ii != buffer.end(); ++ii)
+  {
+     file << *ii;
+  }
+
+  file.close();
+
+  return true;
+}
+
+#if 0
+template < class T >
+std::ostream& operator << (std::ostream& os, const std::vector<T>& v) 
+{
+    os << "[";
+    for (typename std::vector<T>::const_iterator ii = v.begin(); ii != v.end(); ++ii)
+    {
+        os << " " << *ii;
+    }
+    os << "]";
+    return os;
+}
+#endif
+
 void transmit(std::string port_name, std::string baud, bool socat)
 {
    struct sp_port *port;
