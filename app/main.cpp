@@ -7,11 +7,50 @@
 #include "docopt/docopt.h"
 #include <iostream>
 #include <string>
-
+#include <unistd.h>
 
 void transmit(std::string port_name, std::string baud)
 {
+   struct sp_port *port;
+   port = new struct sp_port(); 
+
+   auto result = sp_get_port_by_name(port_name.c_str(), &port); 
+
+   if (SP_OK == result)
+   {
+	   result = sp_open(port, SP_MODE_WRITE);
+	   if (SP_OK == result)
+	   {
+	      std::cout << "trasmit: " << port_name << "," << baud << std::endl;
+	   } 
+	   else
+	   {
+	      std::cout << "transmit: error opening port " << port_name << " error: " << result << std::endl;
+	   }
+   }
+   else
+   {
+      std::cout << "transmit: error configuring port " << port_name << " error: " << result << std::endl;
+
+   }
+
+   char buffer[2048];
+   strcpy(buffer, "*");
+   uint16_t bytes_written = 0;
+
+   while(1)
+   {
+      bytes_written = sp_blocking_write(port, buffer, 1, 2000);
+
+      if (bytes_written > 0)
+      {
+         std::cout << "block write: ";
+         std::cout << std::endl;
+      }
+      sleep(2);
+   }
    std::cout << "transmit: " << port_name << "," << baud << std::endl;
+   delete port;
 }
 
 void receive(std::string port_name, std::string baud)
@@ -41,6 +80,27 @@ void receive(std::string port_name, std::string baud)
       std::cout << "receive: error configuring port " << port_name << " error: " << result << std::endl;
 
    }
+
+   char buffer[2048];
+   uint16_t bytes_read = 0;
+
+   while(1)
+   {
+      bytes_read = sp_blocking_read(port, buffer, 2048, 1000);
+
+      if (bytes_read > 0)
+      {
+         std::cout << "block read: ";
+         uint8_t i = 0;
+         for (int i = 0; i < bytes_read; ++i)
+         {
+            std::cout << buffer[i];
+         } 
+         std::cout << std::endl;
+      }
+      sleep(2);
+   }
+  delete port; 
 }
 
 bool get_port(std::map<std::string, docopt::value> args, std::string &port)
