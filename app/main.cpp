@@ -3,6 +3,7 @@
 #include "xmodem/xmodem_receiver.h"
 #include "xmodem/xmodem_transmitter.h"
 #include "serialport/libserialport.h"
+#include "serialport/libserialport_internal.h"
 #include "docopt/docopt.h"
 #include <iostream>
 #include <string>
@@ -62,7 +63,7 @@ int main (int argc, char **argv )
 	    Usage:
 	      x --port=<port> --receive [--baud=<baudrate>]
 	      x --port=<port> --transmit --file=<filename> [--baud=<baudrate>]
-              x --enummerate
+              x --enumerate
 	      x (-h | --help)
 	      x --version
 
@@ -83,23 +84,59 @@ int main (int argc, char **argv )
                          true,                // show help if requested
                          "nanoXmodem 0.1");  // version string
 
-  if(args.find("--transmit") != args.end())
+  bool transmit_found  = false;
+  bool receive_found   = false;
+  bool enumerate_found = false;
+ 
+  auto arg = args.find("--transmit");
+
+  if(arg != args.end())
   {
+      if (arg->second.isBool())
+      {
+         transmit_found = arg->second.asBool();
+      }
+  }
+   
+  arg = args.find("--receive");
+ 
+  if(arg != args.end())
+  {
+     if (arg->second.isBool())
+     {
+        receive_found = arg->second.asBool();
+     }
+  }
+ 
+  arg = args.find("--enumerate");
+  
+  if(arg != args.end())
+  {
+     if (arg->second.isBool())
+     {
+       enumerate_found = arg->second.asBool();
+     }
+  }
+
+    if (transmit_found)
+    {
     std::string port = "";
     std::string baud = "";
+   
+    get_baud(args, baud);
 
-    get_port(args, port);
-    if (get_baud(args, baud))
-    {
-	    transmit(port, baud);
-    }
-    else
-    {
-       exit_code = 1;
-    }
+	    if (get_port(args, port))
+	    {
+		    transmit(port, baud);
+	    }
+	    else
+	    {
+	       std::cout << "transmit: invalid port defined" << std::endl;
+	       exit_code = 1;
+	    }
 
   }
-  else if (args.find("--receive") != args.end())
+  else if (receive_found)
   {
     std::string port = "";
     std::string baud = "";
@@ -111,20 +148,32 @@ int main (int argc, char **argv )
     }
     else
     {
+       std::cout << "receive: invalid port defined" << std::endl;
        exit_code = 1;
     }
 
   } 
-  else if (args.find("--enumerate") != args.end())
+  else if (enumerate_found)
   {
      struct sp_port **port_list;
 
       if (SP_OK == sp_list_ports(&port_list))
       {
+          if (NULL != port_list)
+          {
+             uint8_t index = 0;
+             while (0 != port_list[index])
+             {
+                std::string str(port_list[index]->name);
+                std::cout << "port: " << str << std::endl; 
+                ++index;
+             }
+          }
 //        sp_free_port_list(&port_list);
       }
       else
       {
+         std::cout << "enumerate: no ports found" << std::endl;
          exit_code = 1;
       }
   }
