@@ -49,6 +49,7 @@
    <mkdir dir="${serialport.build}" />
    <exec executable="${cmake.bin}" dir="${serialport.build}">
       <arg value="-DCMAKE_INSTALL_PREFIX=${install.host.dir}" />
+      <arg value="-DCMAKE_BUILD_TYPE=Debug" />
       <arg value="${serialport.dir}" />
    </exec> 
    

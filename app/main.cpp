@@ -9,14 +9,38 @@
 #include <string>
 
 
-void transmit(std::string port, std::string baud)
+void transmit(std::string port_name, std::string baud)
 {
-   std::cout << "transmit: " << port << "," << baud << std::endl;
+   std::cout << "transmit: " << port_name << "," << baud << std::endl;
 }
 
-void receive(std::string port, std::string baud)
+void receive(std::string port_name, std::string baud)
 {
-   std::cout << "receive: " << port << "," << baud << std::endl;
+   struct sp_port *port;
+   port = new struct sp_port(); 
+//   char port_path[100];
+//   strncpy(port_path, port_name.c_str(), 100);
+//   port.name = port_path;
+
+   auto result = sp_get_port_by_name(port_name.c_str(), &port); 
+
+   if (SP_OK == result)
+   {
+	   result = sp_open(port, SP_MODE_READ);
+	   if (SP_OK == result)
+	   {
+	      std::cout << "receive: " << port_name << "," << baud << std::endl;
+	   } 
+	   else
+	   {
+	      std::cout << "receive: error opening port " << port_name << " error: " << result << std::endl;
+	   }
+   }
+   else
+   {
+      std::cout << "receive: error configuring port " << port_name << " error: " << result << std::endl;
+
+   }
 }
 
 bool get_port(std::map<std::string, docopt::value> args, std::string &port)
