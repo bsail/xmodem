@@ -8,6 +8,30 @@
 #include <iostream>
 #include <string>
 #include <unistd.h>
+#include <vector>
+#include <iterator>
+#include <fstream>
+
+bool read_file_to_buffer(std::string file_path, std::vector<char>& buffer) {
+
+    std::ifstream file(file_path, std::ios::binary);
+
+    if (file.fail()) {
+        perror(file_path.c_str());
+        return false;
+    }
+
+    // copies all data into buffer
+    std::vector<char> prov(
+        (std::istreambuf_iterator<char>(file)),
+        (std::istreambuf_iterator<char>()));
+
+    buffer = prov;
+
+    file.close();
+
+    return true;
+}
 
 void transmit(std::string port_name, std::string baud, bool socat)
 {
