@@ -88,7 +88,7 @@ TEST_F(XModemTests, XMODEM_VERIFY_PACKET)
    EXPECT_EQ(true, xmodem_verify_packet(p, 1));
 
 }
-
+#if 1
 TEST_F(XModemTests, XMODEM_TRANSMIT_TIMEOUT_WAIT_WRITE_BLOCK)
 {
   
@@ -122,8 +122,9 @@ TEST_F(XModemTests, XMODEM_TRANSMIT_TIMEOUT_WAIT_WRITE_BLOCK)
   xmodem_transmitter_cleanup(); 
 
 }
+#endif
 
-
+#if 0
 TEST_F(XModemTests, XMODEM_TRANSMIT_WRITE_BLOCK)
 {
   
@@ -162,23 +163,25 @@ TEST_F(XModemTests, XMODEM_TRANSMIT_WRITE_BLOCK)
   EXPECT_EQ(0, memcmp(transmitter_outbound_buffer+3, transmitter_buffer+transmitter_buffer_position, XMODEM_BLOCK_SIZE));
 
 
-#if 0
-  EXPECT_EQ(true, xmodem_transmit_process(timer));
-  ++timer;
-  EXPECT_EQ(outbound_buffer[0], SOH);
-  EXPECT_EQ(outbound_buffer[1], packet_number);
-  EXPECT_EQ(outbound_buffer[2], 0xFF - packet_number);
-  EXPECT_EQ(0, memcmp(outbound_buffer+3, buffer+buffer_position, 128));
+//#if 0
+  EXPECT_EQ(true, xmodem_transmit_process(transmitter_timer));
+  ++transmitter_timer;
+  EXPECT_EQ(transmitter_outbound_buffer[0], SOH);
+  EXPECT_EQ(transmitter_outbound_buffer[1], transmitter_packet_number);
+  EXPECT_EQ(transmitter_outbound_buffer[2], 0xFF - transmitter_packet_number);
+  EXPECT_EQ(0, memcmp(transmitter_outbound_buffer+3, transmitter_buffer+transmitter_buffer_position, 128));
 
   // clear outbound buffer on each iteration
-  memset(outbound_buffer, 0, OUTBOUND_BUFFER_SIZE);
+  memset(transmitter_outbound_buffer, 0, OUTBOUND_BUFFER_SIZE);
 
   EXPECT_EQ(XMODEM_TRANSMIT_COMPLETE, xmodem_transmit_state());
-#endif
   xmodem_transmitter_cleanup(); 
 
 }
 
+#endif
+
+#if 0
 TEST_F(XModemTests, XMODEM_TRANSMIT_WRITE_DOCUMENT)
 {
   
@@ -237,9 +240,9 @@ TEST_F(XModemTests, XMODEM_TRANSMIT_WRITE_DOCUMENT)
   xmodem_transmitter_cleanup(); 
 
 }
+#endif
 
-
-//#if 0
+#if 0
 
 TEST_F(XModemTests, XMODEM_TIMEOUT_TRANSFER_ACK)
 {
@@ -273,7 +276,7 @@ TEST_F(XModemTests, XMODEM_TIMEOUT_TRANSFER_ACK)
   transmitter_inbound_buffer[0] = NACK;
 
 
-#if 0
+//#if 0
    
   // attempt to send a SOH control character, but the outbound buffer is full 
   returned_outbound_size = 0;
@@ -311,8 +314,8 @@ TEST_F(XModemTests, XMODEM_TIMEOUT_TRANSFER_ACK)
   EXPECT_EQ(0, memcmp(outbound_buffer, &tmp, 1));
   EXPECT_EQ(true, xmodem_cleanup());
 
-#endif
 }
+#endif
 
 
 #if 0
