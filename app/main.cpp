@@ -168,8 +168,9 @@ int main (int argc, char **argv )
                 std::cout << "port: " << str << std::endl; 
                 ++index;
              }
+
+             sp_free_port_list(port_list);
           }
-//        sp_free_port_list(&port_list);
       }
       else
       {
