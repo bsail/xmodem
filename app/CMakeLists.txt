@@ -23,6 +23,8 @@ add_executable(x ${XMODEM_APP_SOURCE_FILES})
 
 if(APPLE)
 target_link_libraries(x xmodem serialport docopt system stdc++ "-framework Foundation" "-framework IOKit" )
+else(APPLE)
+target_link_libraries(x xmodem serialport docopt)
 endif(APPLE)
 
 install(TARGETS x DESTINATION bin)
