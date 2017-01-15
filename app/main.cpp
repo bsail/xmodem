@@ -124,7 +124,7 @@ void receive(std::string port_name, std::string baud, bool socat)
 
    auto result = sp_get_port_by_name(port_name.c_str(), &port); 
 
-   if (socat)
+   if (SP_OK == result && socat)
    {
       port->transport = SP_TRANSPORT_PTY;
    }
@@ -204,10 +204,19 @@ bool get_baud(std::map<std::string, docopt::value> args, std::string &baud)
 }
 
 
+void debug_print(const char*format, ...)
+{
+    va_list args;
+    va_start (args, format);
+    vprintf(format, args);
+    va_end (args); 
+}
 
 int main (int argc, char **argv )
 {
-  
+
+    sp_debug_handler = debug_print;
+ 
     int exit_code = 0;
 
 	static const char USAGE[] =
