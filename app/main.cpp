@@ -66,15 +66,28 @@ void transmit(std::string port_name, std::string baud, bool socat)
 {
    struct sp_port *port;
    port = new struct sp_port(); 
+   char portnamearray[200];
+   memset(portnamearray, 0, 200);
+   strncpy(portnamearray, port_name.c_str(), 200);
+   char portdescarray[200];
+   memset(portdescarray, 0, 200);
+   strncpy(portdescarray, "socat port", 200);
 
-   auto result = sp_get_port_by_name(port_name.c_str(), &port); 
+   sp_return result = SP_OK;
 
-   if (socat)
+   if (!socat)
    {
-      port->transport = SP_TRANSPORT_PTY;
+     auto result = sp_get_port_by_name(port_name.c_str(), &port); 
+   }
+   else
+   {
+      port->transport     = SP_TRANSPORT_PTY;
+      port->name          = portnamearray;
+      port->description   = portdescarray;
+     
    }
 
-   if (SP_OK == result)
+   if (socat || SP_OK == result)
    {
 	   result = sp_open(port, SP_MODE_WRITE);
 	   if (SP_OK == result)
@@ -97,17 +110,30 @@ void transmit(std::string port_name, std::string baud, bool socat)
 	   char buffer[2048];
 	   strcpy(buffer, "*");
 	   uint16_t bytes_written = 0;
+           uint32_t cummulative_written = 0;
 
 	   while(1)
 	   {
 	      bytes_written = sp_blocking_write(port, buffer, 1, 2000);
+              cummulative_written = cummulative_written + bytes_written;
 
 	      if (bytes_written > 0)
 	      {
 		 std::cout << "block write: ";
 		 std::cout << std::endl;
 	      }
-	      sleep(2);
+
+              if (!(cummulative_written % 50))
+              {             
+  	        bytes_written = sp_blocking_write(port, "\n", 1, 2000);
+//                cummulative_written = cummuulative_written + bytes_written;
+              }
+
+
+	      usleep(100);
+
+
+
 	   }
 	   std::cout << "transmit: " << port_name << "," << baud << std::endl;
    }
@@ -124,10 +150,6 @@ void receive(std::string port_name, std::string baud, bool socat)
    char portdescarray[200];
    memset(portdescarray, 0, 200);
    strncpy(portdescarray, "socat port", 200);
-
-//   char port_path[100];
-//   strncpy(port_path, port_name.c_str(), 100);
-//   port.name = port_path;
 
    sp_return result = SP_OK;
 
