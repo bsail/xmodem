@@ -118,18 +118,32 @@ void receive(std::string port_name, std::string baud, bool socat)
 {
    struct sp_port *port;
    port = new struct sp_port(); 
+   char portnamearray[200];
+   memset(portnamearray, 0, 200);
+   strncpy(portnamearray, port_name.c_str(), 200);
+   char portdescarray[200];
+   memset(portdescarray, 0, 200);
+   strncpy(portdescarray, "socat port", 200);
+
 //   char port_path[100];
 //   strncpy(port_path, port_name.c_str(), 100);
 //   port.name = port_path;
 
-   auto result = sp_get_port_by_name(port_name.c_str(), &port); 
+   sp_return result = SP_OK;
 
-   if (SP_OK == result && socat)
+   if (!socat)
    {
-      port->transport = SP_TRANSPORT_PTY;
+     auto result = sp_get_port_by_name(port_name.c_str(), &port); 
+   }
+   else
+   {
+      port->transport     = SP_TRANSPORT_PTY;
+      port->name          = portnamearray;
+      port->description   = portdescarray;
+     
    }
 
-   if (SP_OK == result)
+   if (socat || SP_OK == result)
    {
 	   result = sp_open(port, SP_MODE_READ);
 	   if (SP_OK == result)
@@ -169,7 +183,7 @@ void receive(std::string port_name, std::string baud, bool socat)
 	      sleep(2);
 	   }
   }
-  delete port; 
+  delete port;  // need to free structure's allocated memory, name, desc, etc, currently leaking
 }
 
 bool get_port(std::map<std::string, docopt::value> args, std::string &port)
