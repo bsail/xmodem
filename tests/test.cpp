@@ -19,7 +19,7 @@ static bool transmitter_is_outbound_full()
 static bool transmitter_read_data(const uint32_t requested_size, uint8_t *buffer, uint32_t *returned_size)
 {
    transmitter_requested_inbound_size = requested_size;
-   memcpy(transmitter_buffer, transmitter_inbound_buffer, requested_size); // maybe swap requested_size with returned_size
+   memcpy(buffer, transmitter_inbound_buffer, requested_size); // maybe swap requested_size with returned_size
    *returned_size = transmitter_returned_inbound_size;
    return transmitter_result_inbound_buffer;
 }
