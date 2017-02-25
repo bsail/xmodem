@@ -188,6 +188,15 @@ bool xmodem_transmit_process(const uint32_t current_time)
           break;
       }
 
+      case XMODEM_TRANSMIT_WRITE_BLOCK_FAILED:
+      {
+          //if WRITE_BLOCK_RETRIES >= MAX 
+          transmit_state = XMODEM_TRAANSMIT_ABORT;
+          //else
+          // transmit_state = XMODEM_TRANSMIT_WRITE_BLOCK;
+          break;
+      }
+
 #if 0
       case XMODEM_TRANSMIT_TIMEOUT_WAIT_READ_BLOCK:
       {
