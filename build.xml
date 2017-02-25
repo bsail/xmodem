@@ -60,6 +60,15 @@
 </target>
 
 
+<target name="ctags">
+   <exec failonerror="true" executable="ctags" dir="${basedir}">
+     <arg value="--exclude=.git" />
+     <arg value="--exclude=.repo" />
+     <arg value="--exclude=installed.*" />
+     <arg value="--exclude=build.*" />
+     <arg value="-R" />
+   </exec>
+</target>
 
 <target name="clean">
   <delete dir="${tests.build}" />
