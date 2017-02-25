@@ -144,6 +144,8 @@ TEST_F(XModemTests, XMODEM_TRANSMIT_TIMEOUT_WAIT_WRITE_BLOCK_SINGLE_CYCLE)
 TEST_F(XModemTests, XMODEM_TRANSMIT_TIMEOUT_WAIT_WRITE_BLOCK_MULTI_CYCLE)
 {
  
+
+  uint32_t current_time = 0;
  
   EXPECT_EQ(false, xmodem_transmit_init(transmitter_buffer, BUFFER_SIZE));
   EXPECT_EQ(XMODEM_TRANSMIT_UNKNOWN, xmodem_transmit_state());
@@ -156,9 +158,10 @@ TEST_F(XModemTests, XMODEM_TRANSMIT_TIMEOUT_WAIT_WRITE_BLOCK_MULTI_CYCLE)
   EXPECT_EQ(true, xmodem_transmit_init(transmitter_buffer, BUFFER_SIZE));
   EXPECT_EQ(XMODEM_TRANSMIT_INITIAL, xmodem_transmit_state());
 
+  current_time = 10;
   for (int i = 0; i < 20; ++i)
   {  
-    EXPECT_EQ(true, xmodem_transmit_process(10));
+    EXPECT_EQ(true, xmodem_transmit_process(current_time));
     EXPECT_EQ(XMODEM_TRANSMIT_WAIT_FOR_C, xmodem_transmit_state());
   }
 
@@ -168,30 +171,63 @@ TEST_F(XModemTests, XMODEM_TRANSMIT_TIMEOUT_WAIT_WRITE_BLOCK_MULTI_CYCLE)
   // attempt to send a SOH control character, but the outbound buffer is full 
   transmitter_returned_outbound_size = 0;
 
-  EXPECT_EQ(true, xmodem_transmit_process(11));
+  current_time = 11;
+  EXPECT_EQ(true, xmodem_transmit_process(current_time));
   EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK, xmodem_transmit_state());
 
-  EXPECT_EQ(true, xmodem_transmit_process(12));
- 
-  EXPECT_EQ(true, xmodem_transmit_process(59999+10));
-  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK, xmodem_transmit_state());
+  current_time = 11;
+  EXPECT_EQ(true, xmodem_transmit_process(current_time));
 
-  EXPECT_EQ(true, xmodem_transmit_process(60000+11));
-  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK, xmodem_transmit_state());
+  uint8_t test_retries = 0;
 
-  EXPECT_EQ(true, xmodem_transmit_process(60001+11));
-  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK_TIMEOUT, xmodem_transmit_state());
+  // retry after 10 timeouts
+  for (test_retries = 0; test_retries < 11; ++test_retries)
+  {
+	  current_time = current_time+(59999);
+	  EXPECT_EQ(true, xmodem_transmit_process(current_time));
+	  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK, xmodem_transmit_state());
 
-  EXPECT_EQ(true, xmodem_transmit_process(60001+12));
-  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK_FAILED, xmodem_transmit_state());
+	  ++current_time;
+	  EXPECT_EQ(true, xmodem_transmit_process(current_time));
+	  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK, xmodem_transmit_state());
 
-  EXPECT_EQ(true, xmodem_transmit_process(60001+12));
-  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK, xmodem_transmit_state());
+	  ++current_time;
+	  EXPECT_EQ(true, xmodem_transmit_process(current_time));
+	  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK_TIMEOUT, xmodem_transmit_state());
 
+	  ++current_time;
+	  EXPECT_EQ(true, xmodem_transmit_process(current_time));
+	  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK_FAILED, xmodem_transmit_state());
 
-//  EXPECT_EQ(XMODEM_TRANSMIT_WAIT_FOR_TRANSFER_ACK, xmodem_transmit_state());
-//  EXPECT_EQ(true, xmodem_transmit_process(60000));
-//  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK_FAILED, xmodem_transmit_state());
+	  EXPECT_EQ(true, xmodem_transmit_process(current_time));
+	  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK, xmodem_transmit_state());
+  }
+
+          // after 10th timeout, transfer is aborted
+
+	  current_time = current_time+(59999);
+	  EXPECT_EQ(true, xmodem_transmit_process(current_time));
+	  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK, xmodem_transmit_state());
+
+	  ++current_time;
+	  EXPECT_EQ(true, xmodem_transmit_process(current_time));
+	  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK, xmodem_transmit_state());
+
+	  ++current_time;
+	  EXPECT_EQ(true, xmodem_transmit_process(current_time));
+	  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK_TIMEOUT, xmodem_transmit_state());
+
+	  ++current_time;
+	  EXPECT_EQ(true, xmodem_transmit_process(current_time));
+	  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK_FAILED, xmodem_transmit_state());
+
+	  EXPECT_EQ(true, xmodem_transmit_process(current_time));
+	  EXPECT_EQ(XMODEM_TRANSMIT_ABORT_TRANSFER, xmodem_transmit_state());
+
+          // abort is final state
+	  EXPECT_EQ(true, xmodem_transmit_process(current_time+100000));
+	  EXPECT_EQ(XMODEM_TRANSMIT_ABORT_TRANSFER, xmodem_transmit_state());
+
 
   xmodem_transmitter_cleanup(); 
 
