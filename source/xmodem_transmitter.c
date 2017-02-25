@@ -15,7 +15,7 @@ static bool (*callback_write_data)(const uint32_t requested_size, uint8_t *buffe
 // private variables
 static xmodem_transmit_state_t transmit_state;
 static const uint32_t  TRANSFER_ACK_TIMEOUT    = 60000; // 60 seconds
-static const uint32_t  READ_BLOCK_TIMEOUT      = 60000; // 60 seconds
+static const uint32_t  TRANSFER_EOT_TIMEOUT    = 10000; // 10 seconds
 static const uint8_t   WRITE_BLOCK_MAX_RETRIES = 10; // max 10 retries per block
 static uint8_t         control_character       = 0;
 static uint32_t        returned_size           = 0;
@@ -227,6 +227,52 @@ bool xmodem_transmit_process(const uint32_t current_time)
           break;
       }
 
+      case XMODEM_TRANSMIT_WRITE_EOT:
+      {
+          transmit_state = XMODEM_TRANSMIT_WAIT_FOR_EOT_ACK;
+          break;
+      }
+
+      case XMODEM_TRANSMIT_WAIT_FOR_EOT_ACK:
+      {
+
+           //TODO: where is stopwatch reset?, do we need a separate stopwatch?
+           if (current_time > (stopwatch + TRANSFER_EOT_TIMEOUT))
+          {
+             transmit_state = XMODEM_TRANSMIT_TIMEOUT_EOT;
+          }
+          else
+          {
+ 
+             if (!callback_is_inbound_empty())
+             {
+                callback_read_data(1, &inbound, &returned_size);
+
+                if (returned_size > 0)
+                {
+                   if (EOT == inbound)
+                   {
+                       transmit_state = XMODEM_TRANSMIT_COMPLETE;
+                   }
+                   else if (NACK == inbound)
+                   {
+                       transmit_state = XMODEM_TRANSMIT_ABORT_TRANSFER;
+                   }
+                } 
+             } 
+          }
+
+         
+         transmit_state = XMODEM_TRANSMIT_COMPLETE;
+         break;
+      }
+
+      case XMODEM_TRANSMIT_TIMEOUT_EOT:
+      {
+         transmit_state = XMODEM_TRANSMIT_ABORT_TRANSFER;
+         break;
+      }
+ 
       case XMODEM_TRANSMIT_COMPLETE:
       {
           control_character = EOT; 

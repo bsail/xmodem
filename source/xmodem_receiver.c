@@ -11,7 +11,6 @@ static bool (*callback_write_data)(const uint32_t requested_size, uint8_t *buffe
 
 static xmodem_receive_state_t receive_state;
 
-static const uint32_t  TRANSFER_ACK_TIMEOUT    = 60000; // 60 seconds
 static const uint32_t  READ_BLOCK_TIMEOUT      = 60000; // 60 seconds
 static uint8_t         control_character       = 0;
 static uint32_t        returned_size           = 0;
