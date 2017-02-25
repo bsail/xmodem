@@ -89,10 +89,88 @@ bool xmodem_receive_process(const uint32_t current_time)
           break;
       }
 
+#if 0
+      case XMODEM_TRANSMIT_READ_BLOCK:
+      {
+
+          if (current_time > (stopwatch + READ_BLOCK_TIMEOUT))
+          {
+             transmit_state = XMODEM_TRANSMIT_TIMEOUT_WAIT_READ_BLOCK;
+          }
+          else
+          {
+             uint8_t   inbound       = 0;
+             uint32_t  returned_size = 0;
+ 
+             if (!callback_is_inbound_empty())
+             {
+                callback_read_data(1, &inbound, &returned_size);
+
+                if (returned_size > 0)
+                {
+                   if (ACK == inbound)
+                   {
+                       transmit_state = XMODEM_TRANSFER_ACK_RECEIVED;
+                   }
+                   else if (EOT == inbound)
+                   {
+                       transmit_state = XMODEM_TRANSFER_COMPLETE;
+                   }
+                } 
+             } 
+             //TODO: check for ACK or EOT in inbound buffer
+
+          }
+          break;
+      }
+#endif
+
+#if 0
+      case XMODEM_TRANSMIT_TIMEOUT_WAIT_READ_BLOCK:
+      {
+          transmit_state = XMODEM_TRANSMIT_ABORT_TRANSFER;
+          stopwatch = current_time;
+          break;
+      }
+
+#endif
+
+
+
+#if 0 
+      case XMODEM_TRANSMIT_BLOCK_RECEIVED:
+      {
+          break;
+      }
+
+      case XMODEM_TRANSMIT_INVALID_BLOCK:
+      {
+          break;
+      }
+
+      case XMODEM_TRANSMIT_VALID_BLOCK:
+      {
+          transmit_state = XMODEM_TRANSMIT_ACK_BLOCK;
+          break;
+      }
+
+      case XMODEM_TRANSMIT_ACK_BLOCK:
+      {
+          //TODO: send ACK
+          stopwatch = current_time;  // start the stopwatch to watch for a TRANSFER_ACK TIMEOUT
+          transmit_state = XMODEM_TRANSMIT_WAIT_FOR_TRANSFER_ACK;
+          break;
+      }
+
+#endif
+
+
       default:
       {
           receive_state = XMODEM_RECEIVE_UNKNOWN; 
       }
+
+
 
    };
 
