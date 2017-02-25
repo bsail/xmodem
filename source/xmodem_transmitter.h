@@ -6,7 +6,7 @@ enum XMODEM_TRANSMIT_STATES {XMODEM_TRANSMIT_INITIAL,               XMODEM_TRANS
                              XMODEM_TRANSMIT_ABORT_TRANSFER,        XMODEM_TRANSMIT_WRITE_BLOCK, 
                              XMODEM_TRANSMIT_TRANSFER_ACK_RECEIVED, XMODEM_TRANSMIT_COMPLETE,
                              XMODEM_TRANSMIT_WRITE_EOT,             XMODEM_TRANSMIT_WAIT_FOR_EOT_ACK,
-                             XMODEM_TRANSMIT_TIMEOUT_EOT,
+                             XMODEM_TRANSMIT_TIMEOUT_EOT,           XMODEM_TRANSMIT_WRITE_BLOCK_TIMEOUT,
                              XMODEM_TRANSMIT_WAIT_WRITE_BLOCK,      XMODEM_TRANSMIT_UNKNOWN } typedef xmodem_transmit_state_t;
 
 xmodem_transmit_state_t xmodem_transmit_state();

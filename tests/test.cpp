@@ -88,10 +88,11 @@ TEST_F(XModemTests, XMODEM_VERIFY_PACKET)
    EXPECT_EQ(true, xmodem_verify_packet(p, 1));
 
 }
-#if 1
-TEST_F(XModemTests, XMODEM_TRANSMIT_TIMEOUT_WAIT_WRITE_BLOCK)
+
+TEST_F(XModemTests, XMODEM_TRANSMIT_TIMEOUT_WAIT_WRITE_BLOCK_SINGLE_CYCLE)
 {
-  
+ 
+ 
   EXPECT_EQ(false, xmodem_transmit_init(transmitter_buffer, BUFFER_SIZE));
   EXPECT_EQ(XMODEM_TRANSMIT_UNKNOWN, xmodem_transmit_state());
 
@@ -105,7 +106,7 @@ TEST_F(XModemTests, XMODEM_TRANSMIT_TIMEOUT_WAIT_WRITE_BLOCK)
 
   for (int i = 0; i < 20; ++i)
   {  
-    EXPECT_EQ(true, xmodem_transmit_process(0));
+    EXPECT_EQ(true, xmodem_transmit_process(10));
     EXPECT_EQ(XMODEM_TRANSMIT_WAIT_FOR_C, xmodem_transmit_state());
   }
 
@@ -114,15 +115,89 @@ TEST_F(XModemTests, XMODEM_TRANSMIT_TIMEOUT_WAIT_WRITE_BLOCK)
 
   // attempt to send a SOH control character, but the outbound buffer is full 
   transmitter_returned_outbound_size = 0;
-  EXPECT_EQ(true, xmodem_transmit_process(1));
+
+  EXPECT_EQ(true, xmodem_transmit_process(11));
   EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK, xmodem_transmit_state());
 
-  EXPECT_EQ(true, xmodem_transmit_process(2));
+  EXPECT_EQ(true, xmodem_transmit_process(12));
  
+  EXPECT_EQ(true, xmodem_transmit_process(59999+10));
+  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK, xmodem_transmit_state());
+
+  EXPECT_EQ(true, xmodem_transmit_process(60000+11));
+  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK, xmodem_transmit_state());
+
+  EXPECT_EQ(true, xmodem_transmit_process(60001+11));
+  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK_TIMEOUT, xmodem_transmit_state());
+
+  EXPECT_EQ(true, xmodem_transmit_process(60001+12));
+  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK_FAILED, xmodem_transmit_state());
+
+  EXPECT_EQ(true, xmodem_transmit_process(60001+12));
+  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK, xmodem_transmit_state());
+
   xmodem_transmitter_cleanup(); 
 
 }
-#endif
+
+
+TEST_F(XModemTests, XMODEM_TRANSMIT_TIMEOUT_WAIT_WRITE_BLOCK_MULTI_CYCLE)
+{
+ 
+ 
+  EXPECT_EQ(false, xmodem_transmit_init(transmitter_buffer, BUFFER_SIZE));
+  EXPECT_EQ(XMODEM_TRANSMIT_UNKNOWN, xmodem_transmit_state());
+
+  xmodem_transmitter_set_callback_write(&transmitter_write_data);
+  xmodem_transmitter_set_callback_read(&transmitter_read_data);
+  xmodem_transmitter_set_callback_is_outbound_full(&transmitter_is_outbound_full);
+  xmodem_transmitter_set_callback_is_inbound_empty(&transmitter_is_inbound_empty);
+
+  EXPECT_EQ(true, xmodem_transmit_init(transmitter_buffer, BUFFER_SIZE));
+  EXPECT_EQ(XMODEM_TRANSMIT_INITIAL, xmodem_transmit_state());
+
+  for (int i = 0; i < 20; ++i)
+  {  
+    EXPECT_EQ(true, xmodem_transmit_process(10));
+    EXPECT_EQ(XMODEM_TRANSMIT_WAIT_FOR_C, xmodem_transmit_state());
+  }
+
+  transmitter_returned_inbound_size = 1; 
+  transmitter_inbound_buffer[0] = C;
+
+  // attempt to send a SOH control character, but the outbound buffer is full 
+  transmitter_returned_outbound_size = 0;
+
+  EXPECT_EQ(true, xmodem_transmit_process(11));
+  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK, xmodem_transmit_state());
+
+  EXPECT_EQ(true, xmodem_transmit_process(12));
+ 
+  EXPECT_EQ(true, xmodem_transmit_process(59999+10));
+  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK, xmodem_transmit_state());
+
+  EXPECT_EQ(true, xmodem_transmit_process(60000+11));
+  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK, xmodem_transmit_state());
+
+  EXPECT_EQ(true, xmodem_transmit_process(60001+11));
+  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK_TIMEOUT, xmodem_transmit_state());
+
+  EXPECT_EQ(true, xmodem_transmit_process(60001+12));
+  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK_FAILED, xmodem_transmit_state());
+
+  EXPECT_EQ(true, xmodem_transmit_process(60001+12));
+  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK, xmodem_transmit_state());
+
+
+//  EXPECT_EQ(XMODEM_TRANSMIT_WAIT_FOR_TRANSFER_ACK, xmodem_transmit_state());
+//  EXPECT_EQ(true, xmodem_transmit_process(60000));
+//  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK_FAILED, xmodem_transmit_state());
+
+  xmodem_transmitter_cleanup(); 
+
+}
+
+
 
 #if 0
 TEST_F(XModemTests, XMODEM_TRANSMIT_WRITE_BLOCK)

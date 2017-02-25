@@ -14,17 +14,19 @@ static bool (*callback_write_data)(const uint32_t requested_size, uint8_t *buffe
 
 // private variables
 static xmodem_transmit_state_t transmit_state;
-static const uint32_t  TRANSFER_ACK_TIMEOUT    = 60000; // 60 seconds
-static const uint32_t  TRANSFER_EOT_TIMEOUT    = 10000; // 10 seconds
-static const uint8_t   WRITE_BLOCK_MAX_RETRIES = 10; // max 10 retries per block
-static uint8_t         control_character       = 0;
-static uint32_t        returned_size           = 0;
-static uint8_t         inbound                 = 0;
-static uint8_t         *payload_buffer         = 0;
-static uint32_t        payload_buffer_position = 0;
-static uint32_t        payload_size            = 0;
-static uint8_t         current_packet_id       = 0;
-static uint8_t         retries                 = 0;
+static const uint32_t  TRANSFER_ACK_TIMEOUT          = 60000; // 60 seconds
+static const uint32_t  TRANSFER_EOT_TIMEOUT          = 10000; // 10 seconds
+static const uint32_t  TRANSFER_WRITE_BLOCK_TIMEOUT  = 60000; // 60 seconds
+static const uint8_t   WRITE_BLOCK_MAX_RETRIES       = 10; // max 10 retries per block
+static uint8_t         control_character             = 0;
+static uint32_t        returned_size                 = 0;
+static uint8_t         inbound                       = 0;
+static uint8_t         *payload_buffer               = 0;
+static uint32_t        payload_buffer_position       = 0;
+static uint32_t        payload_size                  = 0;
+static uint8_t         current_packet_id             = 0;
+static uint8_t         write_block_retries           = 0;
+static uint32_t        write_block_timer             = 0; 
 static xmodem_packet_t current_packet;
 
 
@@ -51,7 +53,8 @@ bool xmodem_transmit_init(uint8_t *buffer, uint32_t size)
       payload_size            = size;
       payload_buffer          = buffer;
       payload_buffer_position = 0;
-      retries                 = 0;
+      write_block_retries     = 0;
+      write_block_timer       = 0;
       memset(&current_packet, 0, sizeof(xmodem_packet_t));
    }
 
@@ -71,8 +74,8 @@ bool xmodem_transmitter_cleanup()
    inbound                   = 0;
    returned_size             = 0;
    control_character         = 0;
-   retries                   = 0;
-
+   write_block_retries       = 0;
+   write_block_timer         = 0;
    return true;
 }
 
@@ -101,7 +104,8 @@ bool xmodem_transmit_process(const uint32_t current_time)
           {
             transmit_state          = XMODEM_TRANSMIT_WRITE_BLOCK;
             current_packet_id       = 1;
-            payload_buffer_position = 0;
+            payload_buffer_position = 0; 
+            write_block_timer       = current_time;
           }
         }
         break;      
@@ -109,7 +113,11 @@ bool xmodem_transmit_process(const uint32_t current_time)
 
       case XMODEM_TRANSMIT_WRITE_BLOCK:
       {
-         if ((payload_size / XMODEM_BLOCK_SIZE) >= current_packet_id)
+         if (current_time > (write_block_timer + TRANSFER_WRITE_BLOCK_TIMEOUT))
+         {
+            transmit_state = XMODEM_TRANSMIT_WRITE_BLOCK_TIMEOUT;
+         }
+         else if ((payload_size / XMODEM_BLOCK_SIZE) >= current_packet_id)
          {
             /* setup current packet */ 
 	    current_packet.preamble      = SOH;
@@ -136,6 +144,12 @@ bool xmodem_transmit_process(const uint32_t current_time)
 
          break;
       }
+
+     case XMODEM_TRANSMIT_WRITE_BLOCK_TIMEOUT:
+     {
+        transmit_state = XMODEM_TRANSMIT_WRITE_BLOCK_FAILED;
+        break;
+     }
 
 #if 0
       case XMODEM_TRANSMIT_SEND_REQUEST_FOR_TRANSFER:
@@ -194,14 +208,15 @@ bool xmodem_transmit_process(const uint32_t current_time)
 
       case XMODEM_TRANSMIT_WRITE_BLOCK_FAILED:
       {
-          if (WRITE_BLOCK_MAX_RETRIES < retries)
+          if (WRITE_BLOCK_MAX_RETRIES < write_block_retries)
           {
             transmit_state = XMODEM_TRANSMIT_ABORT_TRANSFER;
           }
           else
           {
-            transmit_state = XMODEM_TRANSMIT_WRITE_BLOCK;
-            ++retries;
+            transmit_state    = XMODEM_TRANSMIT_WRITE_BLOCK;
+            write_block_timer = current_time;
+            ++write_block_retries;
           }
           break;
       }
@@ -223,7 +238,7 @@ bool xmodem_transmit_process(const uint32_t current_time)
       {
             //decision, WRITE_BLOCK, END_OF_FILE
 //          transmit_state = XMODEM_TRANSMIT_READ_BLOCK;
-          retries = 0;
+          write_block_retries = 0;
           break;
       }
 
