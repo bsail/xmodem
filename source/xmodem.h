@@ -12,7 +12,6 @@ typedef struct
   uint8_t  id;
   uint8_t  id_complement;
   uint8_t  data[XMODEM_BLOCK_SIZE];
-  uint8_t  data_size;
   uint16_t crc;
 } xmodem_packet_t;
 

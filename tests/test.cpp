@@ -27,7 +27,7 @@ static bool transmitter_read_data(const uint32_t requested_size, uint8_t *buffer
 static bool transmitter_write_data(const uint32_t requested_size, uint8_t *buffer, uint32_t *returned_size)
 {
    transmitter_requested_outbound_size = requested_size;
-   memcpy(transmitter_outbound_buffer, transmitter_buffer, requested_size);
+   memcpy(transmitter_outbound_buffer, buffer, requested_size);
    *returned_size = transmitter_returned_outbound_size;
    return transmitter_result_outbound_buffer;
 }
@@ -73,18 +73,18 @@ TEST_F(XModemTests, XMODEM_VERIFY_PACKET)
 
    p.id_complement = 0xFF - p.id;
    p.crc           = 0;
-   p.data_size     = 0;
+//   p.data_size     = 0;
    EXPECT_EQ(true, xmodem_verify_packet(p, 1));
 
    p.crc       = 0xBB3D; 
-   p.data_size = 0;
+//   p.data_size = 0;
    EXPECT_EQ(false, xmodem_verify_packet(p, 1));
 
    memset(buffer, 0, 10);
    memcpy(buffer,p.data, 9);
 
    p.crc       = 0x2378; // expected value
-   p.data_size = 9;
+//   p.data_size = 9;
    EXPECT_EQ(true, xmodem_verify_packet(p, 1));
 
 }
@@ -234,8 +234,6 @@ TEST_F(XModemTests, XMODEM_TRANSMIT_TIMEOUT_WAIT_WRITE_BLOCK_MULTI_CYCLE)
 }
 
 
-
-#if 1
 TEST_F(XModemTests, XMODEM_TRANSMIT_WRITE_BLOCK)
 {
   
@@ -273,8 +271,6 @@ TEST_F(XModemTests, XMODEM_TRANSMIT_WRITE_BLOCK)
   EXPECT_EQ(transmitter_outbound_buffer[2], 0xFF - transmitter_packet_number);
   EXPECT_EQ(0, memcmp(transmitter_outbound_buffer+3, transmitter_buffer+transmitter_buffer_position, XMODEM_BLOCK_SIZE));
 
-
-//#if 0
   EXPECT_EQ(true, xmodem_transmit_process(transmitter_timer));
   ++transmitter_timer;
   EXPECT_EQ(transmitter_outbound_buffer[0], SOH);
@@ -290,7 +286,6 @@ TEST_F(XModemTests, XMODEM_TRANSMIT_WRITE_BLOCK)
 
 }
 
-#endif
 
 #if 0
 TEST_F(XModemTests, XMODEM_TRANSMIT_WRITE_DOCUMENT)
