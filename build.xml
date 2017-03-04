@@ -62,11 +62,12 @@
 
 <target name="ctags">
    <exec failonerror="true" executable="ctags" dir="${basedir}">
-     <arg value="--exclude=${basedir}/.git" />
-     <arg value="--exclude=${basedir}/.repo" />
-     <arg value="--exclude=${basedir}/installed.*" />
-     <arg value="--exclude=${basedir}/build.*" />
      <arg value="-R" />
+     <arg value="--exclude=.git" />
+     <arg value="--exclude=.repo" />
+     <arg value="--exclude=*installed.*" />
+     <arg value="--exclude=\'${basedir}/build.*\'" />
+     <arg value="${basedir}" />
    </exec>
 </target>
 
