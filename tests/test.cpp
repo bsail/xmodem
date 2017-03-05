@@ -395,11 +395,13 @@ TEST_F(XModemTests, XMODEM_TRANSMIT_WRITE_SINGLE_BLOCK_DOCUMENT_EOT_TIMEOUT)
   EXPECT_EQ(true, xmodem_transmit_process(transmitter_timer));
   EXPECT_EQ(XMODEM_TRANSMIT_WAIT_FOR_EOT_ACK, xmodem_transmit_state());
 
-
   ++transmitter_timer;
   transmitter_inbound_buffer[0] = 0x0;
   EXPECT_EQ(true, xmodem_transmit_process(transmitter_timer));
   EXPECT_EQ(XMODEM_TRANSMIT_TIMEOUT_EOT, xmodem_transmit_state());
+
+EXPECT_EQ(true, xmodem_transmit_process(transmitter_timer));
+  EXPECT_EQ(XMODEM_TRANSMIT_ABORT_TRANSFER, xmodem_transmit_state());
 
   // clear outbound buffer on each iteration
   memset(transmitter_outbound_buffer, 0, OUTBOUND_BUFFER_SIZE);
