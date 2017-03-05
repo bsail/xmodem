@@ -83,6 +83,46 @@
   <delete dir="${build}" />
 </target>
 
+<target name="xmodem_transmitteronly_release">
+  <delete dir="${build}" />
+  <mkdir  dir="${build}" />
+
+  <exec executable="${cmake.bin}" dir="${build}" failonerror="true" >
+    <arg value="-DCMAKE_INSTALL_PREFIX=${install.host.dir}" />
+    <arg value="-DCMAKE_BUILD_TYPE=Release" />
+    <arg value="-DTRANSMITTER_ONLY=1" />
+    <arg value="${basedir}" />
+  </exec>
+
+  <exec executable="make" dir="${build}" failonerror="true">
+  </exec>
+
+  <exec executable="make" dir="${build}" failonerror="true">
+    <arg value="install" />
+  </exec>
+</target>
+
+<target name="xmodem_receiveronly_release">
+  <delete dir="${build}" />
+  <mkdir  dir="${build}" />
+
+  <exec executable="${cmake.bin}" dir="${build}" failonerror="true" >
+    <arg value="-DCMAKE_INSTALL_PREFIX=${install.host.dir}" />
+    <arg value="-DCMAKE_BUILD_TYPE=Release" />
+    <arg value="-DRECEIVER_ONLY=1" />
+    <arg value="${basedir}" />
+  </exec>
+
+  <exec executable="make" dir="${build}" failonerror="true">
+  </exec>
+
+  <exec executable="make" dir="${build}" failonerror="true">
+    <arg value="install" />
+  </exec>
+</target>
+
+
+
 <target name="xmodem_release">
   <delete dir="${build}" />
   <mkdir  dir="${build}" />
