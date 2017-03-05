@@ -193,7 +193,7 @@ bool xmodem_transmit_process(const uint32_t current_time)
                    }
                    else if (NACK == inbound)
                    {
-                       //retry or abort
+                       transmit_state = XMODEM_TRANSMIT_WRITE_BLOCK_FAILED;
                    }
                    else if (EOT == inbound)
                    {
