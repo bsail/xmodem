@@ -246,7 +246,7 @@ TEST_F(XModemTests, XMODEM_TRANSMIT_WRITE_BLOCK)
   xmodem_transmitter_set_callback_is_outbound_full(&transmitter_is_outbound_full);
   xmodem_transmitter_set_callback_is_inbound_empty(&transmitter_is_inbound_empty);
 
-  EXPECT_EQ(true, xmodem_transmit_init(transmitter_buffer, BUFFER_SIZE));
+  EXPECT_EQ(true, xmodem_transmit_init(transmitter_buffer, XMODEM_BLOCK_SIZE)); // send only a single block
   EXPECT_EQ(XMODEM_TRANSMIT_INITIAL, xmodem_transmit_state());
 
   for (int i = 0; i < 20; ++i)
@@ -285,8 +285,23 @@ TEST_F(XModemTests, XMODEM_TRANSMIT_WRITE_BLOCK)
 
   ++transmitter_timer;
   EXPECT_EQ(true, xmodem_transmit_process(transmitter_timer));
-  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_BLOCK, xmodem_transmit_state());
+  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_EOT, xmodem_transmit_state());
 
+  ++transmitter_timer;
+  transmitter_inbound_buffer[0] = 0x0;
+  EXPECT_EQ(true, xmodem_transmit_process(transmitter_timer));
+  EXPECT_EQ(XMODEM_TRANSMIT_WAIT_FOR_EOT_ACK, xmodem_transmit_state());
+
+  // process again without an ACK but do not timeout
+  ++transmitter_timer;
+  transmitter_inbound_buffer[0] = 0x0;
+  EXPECT_EQ(true, xmodem_transmit_process(transmitter_timer));
+  EXPECT_EQ(XMODEM_TRANSMIT_WAIT_FOR_EOT_ACK, xmodem_transmit_state());
+
+  // process an ACK
+  ++transmitter_timer;
+  transmitter_inbound_buffer[0] = ACK;
+  EXPECT_EQ(true, xmodem_transmit_process(transmitter_timer));
 
   // clear outbound buffer on each iteration
   memset(transmitter_outbound_buffer, 0, OUTBOUND_BUFFER_SIZE);

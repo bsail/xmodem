@@ -225,7 +225,8 @@ bool xmodem_transmit_process(const uint32_t current_time)
       case XMODEM_TRANSMIT_ABORT_TRANSFER:
       {
           control_character = CAN; 
-          callback_write_data(1, &control_character, &write_success);  
+          bool result = false;
+          callback_write_data(1, &control_character, &result);  
           //final state
           break;
       }
@@ -235,16 +236,28 @@ bool xmodem_transmit_process(const uint32_t current_time)
 
       case XMODEM_TRANSMIT_TRANSFER_ACK_RECEIVED:
       {
-            //decision, WRITE_BLOCK, END_OF_FILE
-//          transmit_state = XMODEM_TRANSMIT_READ_BLOCK;
-          transmit_state = XMODEM_TRANSMIT_WRITE_BLOCK;
-          write_block_retries = 0;
+	  if (payload_buffer_position >= payload_size)
+          {
+             transmit_state = XMODEM_TRANSMIT_WRITE_EOT;
+          }
+          else
+          { 
+             transmit_state = XMODEM_TRANSMIT_WRITE_BLOCK;
+	     write_block_retries = 0;
+          }
           break;
       }
 
       case XMODEM_TRANSMIT_WRITE_EOT:
       {
-          transmit_state = XMODEM_TRANSMIT_WAIT_FOR_EOT_ACK;
+          control_character = EOT;
+          bool result       = false;
+          callback_write_data(1, &control_character, &result);  
+          
+          if (result)
+          { 
+            transmit_state = XMODEM_TRANSMIT_WAIT_FOR_EOT_ACK;
+          }
           break;
       }
 
@@ -252,7 +265,7 @@ bool xmodem_transmit_process(const uint32_t current_time)
       {
 
            //TODO: where is stopwatch reset?, do we need a separate stopwatch?
-           if (current_time > (stopwatch + TRANSFER_EOT_TIMEOUT))
+          if (current_time > (stopwatch + TRANSFER_EOT_TIMEOUT))
           {
              transmit_state = XMODEM_TRANSMIT_TIMEOUT_EOT;
           }
@@ -265,7 +278,7 @@ bool xmodem_transmit_process(const uint32_t current_time)
 
                 if (returned_size > 0)
                 {
-                   if (EOT == inbound)
+                   if (ACK == inbound)
                    {
                        transmit_state = XMODEM_TRANSMIT_COMPLETE;
                    }
@@ -277,8 +290,6 @@ bool xmodem_transmit_process(const uint32_t current_time)
              } 
           }
 
-         
-         transmit_state = XMODEM_TRANSMIT_COMPLETE;
          break;
       }
 
