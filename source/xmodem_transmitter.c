@@ -282,7 +282,7 @@ bool xmodem_transmit_process(const uint32_t current_time)
                 {
                    if (ACK == inbound)
                    {
-                       transmit_state = XMODEM_TRANSMIT_COMPLETE;
+                       transmit_state = XMODEM_TRANSMIT_WRITE_ETB;
                    }
                    else if (NACK == inbound)
                    {

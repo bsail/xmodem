@@ -305,11 +305,26 @@ TEST_F(XModemTests, XMODEM_TRANSMIT_WRITE_SINGLE_BLOCK_DOCUMENT)
   ++transmitter_timer;
   transmitter_inbound_buffer[0] = ACK;
   EXPECT_EQ(true, xmodem_transmit_process(transmitter_timer));
+  EXPECT_EQ(XMODEM_TRANSMIT_WRITE_ETB, xmodem_transmit_state());
 
-  // clear outbound buffer on each iteration
-  memset(transmitter_outbound_buffer, 0, OUTBOUND_BUFFER_SIZE);
 
+  ++transmitter_timer;
+  transmitter_inbound_buffer[0] = 0x0;
+  EXPECT_EQ(true, xmodem_transmit_process(transmitter_timer));
+  EXPECT_EQ(XMODEM_TRANSMIT_WAIT_FOR_ETB_ACK, xmodem_transmit_state());
+  EXPECT_EQ(ETB, transmitter_outbound_buffer[0]);
+
+  ++transmitter_timer;
+  transmitter_inbound_buffer[0] = 0x0;
+  EXPECT_EQ(true, xmodem_transmit_process(transmitter_timer));
+  EXPECT_EQ(XMODEM_TRANSMIT_WAIT_FOR_ETB_ACK, xmodem_transmit_state());
+  EXPECT_EQ(ETB, transmitter_outbound_buffer[0]);
+
+  ++transmitter_timer;
+  transmitter_inbound_buffer[0] = ACK;
+  EXPECT_EQ(true, xmodem_transmit_process(transmitter_timer));
   EXPECT_EQ(XMODEM_TRANSMIT_COMPLETE, xmodem_transmit_state());
+
   xmodem_transmitter_cleanup(); 
 
 }
