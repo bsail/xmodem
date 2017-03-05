@@ -16,6 +16,7 @@ static bool (*callback_write_data)(const uint32_t requested_size, uint8_t *buffe
 static xmodem_transmit_state_t transmit_state;
 static const uint32_t  TRANSFER_ACK_TIMEOUT          = 60000; // 60 seconds
 static const uint32_t  TRANSFER_EOT_TIMEOUT          = 10000; // 10 seconds
+static const uint32_t  TRANSFER_ETB_TIMEOUT          = 10000; // 10 seconds
 static const uint32_t  TRANSFER_WRITE_BLOCK_TIMEOUT  = 60000; // 60 seconds
 static const uint8_t   WRITE_BLOCK_MAX_RETRIES       = 10; // max 10 retries per block
 static uint8_t         control_character             = 0;
@@ -85,8 +86,9 @@ bool xmodem_transmitter_cleanup()
 bool xmodem_transmit_process(const uint32_t current_time)
 {
 
-   static uint32_t stopwatch = 0;
+   static uint32_t stopwatch     = 0;
    static uint32_t stopwatch_eot = 0;
+   static uint32_t stopwatch_etb = 0;
 
    switch(transmit_state)
    {
@@ -265,8 +267,6 @@ bool xmodem_transmit_process(const uint32_t current_time)
 
       case XMODEM_TRANSMIT_WAIT_FOR_EOT_ACK:
       {
-
-           //TODO: where is stopwatch reset?, do we need a separate stopwatch?
           if (current_time > (stopwatch_eot + TRANSFER_EOT_TIMEOUT))
           {
              transmit_state = XMODEM_TRANSMIT_TIMEOUT_EOT;
@@ -300,7 +300,55 @@ bool xmodem_transmit_process(const uint32_t current_time)
          transmit_state = XMODEM_TRANSMIT_ABORT_TRANSFER;
          break;
       }
+
+      case XMODEM_TRANSMIT_WRITE_ETB:
+      {
+          control_character = ETB;
+          bool result       = false;
+          callback_write_data(1, &control_character, &result);  
+          
+          if (result)
+          { 
+            transmit_state = XMODEM_TRANSMIT_WAIT_FOR_ETB_ACK;
+            stopwatch_etb = current_time;
+          }
+          break;
+      }
+
+      case XMODEM_TRANSMIT_WAIT_FOR_ETB_ACK:
+      { 
+          if (current_time > (stopwatch_etb + TRANSFER_ETB_TIMEOUT))
+          {
+             transmit_state = XMODEM_TRANSMIT_TIMEOUT_ETB;
+          }
+          else
+          {
  
+             if (!callback_is_inbound_empty())
+             {
+                callback_read_data(1, &inbound, &returned_size);
+
+                if (returned_size > 0)
+                {
+                   if (ACK == inbound)
+                   {
+                       transmit_state = XMODEM_TRANSMIT_COMPLETE;
+                   }
+                   else if (NACK == inbound)
+                   {
+                       transmit_state = XMODEM_TRANSMIT_ABORT_TRANSFER;
+                   }
+                } 
+             } 
+          }
+
+         break;
+      }
+
+      case XMODEM_TRANSMIT_TIMEOUT_ETB:
+      {
+      }
+
       case XMODEM_TRANSMIT_COMPLETE:
       {
           control_character = EOT; 

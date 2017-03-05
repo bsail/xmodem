@@ -443,6 +443,7 @@ TEST_F(XModemTests, XMODEM_TRANSMIT_WRITE_SINGLE_BLOCK_DOCUMENT_EOT_TIMEOUT)
   transmitter_inbound_buffer[0] = 0x0;
   EXPECT_EQ(true, xmodem_transmit_process(transmitter_timer));
   EXPECT_EQ(XMODEM_TRANSMIT_WAIT_FOR_EOT_ACK, xmodem_transmit_state());
+  EXPECT_EQ(transmitter_outbound_buffer[0], EOT); // verify that EOT is written to the outbound buffer
   
   // process again without an ACK but do not timeout
   ++transmitter_timer;
