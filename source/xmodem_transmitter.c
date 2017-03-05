@@ -86,6 +86,7 @@ bool xmodem_transmit_process(const uint32_t current_time)
 {
 
    static uint32_t stopwatch = 0;
+   static uint32_t stopwatch_eot = 0;
 
    switch(transmit_state)
    {
@@ -257,6 +258,7 @@ bool xmodem_transmit_process(const uint32_t current_time)
           if (result)
           { 
             transmit_state = XMODEM_TRANSMIT_WAIT_FOR_EOT_ACK;
+            stopwatch_eot = current_time;
           }
           break;
       }
@@ -265,7 +267,7 @@ bool xmodem_transmit_process(const uint32_t current_time)
       {
 
            //TODO: where is stopwatch reset?, do we need a separate stopwatch?
-          if (current_time > (stopwatch + TRANSFER_EOT_TIMEOUT))
+          if (current_time > (stopwatch_eot + TRANSFER_EOT_TIMEOUT))
           {
              transmit_state = XMODEM_TRANSMIT_TIMEOUT_EOT;
           }
