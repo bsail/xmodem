@@ -7032,7 +7032,7 @@
 							],
 							"visible": true,
 							"enabled": true,
-							"lineColor": "#000000",
+							"lineColor": "#0000ff",
 							"fillColor": "#ffffff",
 							"fontColor": "#000000",
 							"font": "Arial;13;0",
