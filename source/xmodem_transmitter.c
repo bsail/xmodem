@@ -9,7 +9,7 @@
 static bool (*callback_is_inbound_empty)();
 static bool (*callback_is_outbound_full)();
 static bool (*callback_read_data)(const uint32_t requested_size, uint8_t *buffer, uint32_t *returned_size);
-static bool (*callback_write_data)(const uint32_t requested_size, uint8_t *buffer, uint32_t *returned_size);
+static bool (*callback_write_data)(const uint32_t requested_size, uint8_t *buffer, bool *write_success);
 
 
 // private variables
@@ -19,6 +19,7 @@ static const uint32_t  TRANSFER_EOT_TIMEOUT          = 10000; // 10 seconds
 static const uint32_t  TRANSFER_WRITE_BLOCK_TIMEOUT  = 60000; // 60 seconds
 static const uint8_t   WRITE_BLOCK_MAX_RETRIES       = 10; // max 10 retries per block
 static uint8_t         control_character             = 0;
+static bool            write_success                 = false;
 static uint32_t        returned_size                 = 0;
 static uint8_t         inbound                       = 0;
 static uint8_t         *payload_buffer               = 0;
@@ -72,10 +73,11 @@ bool xmodem_transmitter_cleanup()
    payload_buffer_position   = 0;
    payload_buffer            = 0;
    inbound                   = 0;
-   returned_size             = 0;
    control_character         = 0;
    write_block_retries       = 0;
    write_block_timer         = 0;
+   write_success             = false;
+   returned_size             = 0;
    return true;
 }
 
@@ -117,7 +119,7 @@ bool xmodem_transmit_process(const uint32_t current_time)
          {
             transmit_state = XMODEM_TRANSMIT_WRITE_BLOCK_TIMEOUT;
          }
-         else if ((payload_size / XMODEM_BLOCK_SIZE) >= current_packet_id)
+         else //if ((payload_size / XMODEM_BLOCK_SIZE) >= current_packet_id)
          {
             /* setup current packet */ 
 	    current_packet.preamble      = SOH;
@@ -127,19 +129,16 @@ bool xmodem_transmit_process(const uint32_t current_time)
             xmodem_calculate_crc(current_packet.data, XMODEM_BLOCK_SIZE, &current_packet.crc);      
 
             /* write to output buffer */ 
-            callback_write_data(sizeof(current_packet), &current_packet, &returned_size);  
+            callback_write_data(sizeof(current_packet), &current_packet, &write_success);  
 
-            if (sizeof(current_packet) == returned_size) // check if the output buffer had room
+            if (write_success) // check if the output buffer had room
             {
 	       /* increment for next packet */
 	       ++current_packet_id;        
 	       payload_buffer_position = payload_buffer_position + XMODEM_BLOCK_SIZE;
+               transmit_state = XMODEM_TRANSMIT_WAIT_FOR_TRANSFER_ACK; // end of document
 	    }
 
-         }
-         else
-         {
-           transmit_state = XMODEM_TRANSMIT_WAIT_FOR_TRANSFER_ACK; // end of document
          }
 
          break;
@@ -226,7 +225,7 @@ bool xmodem_transmit_process(const uint32_t current_time)
       case XMODEM_TRANSMIT_ABORT_TRANSFER:
       {
           control_character = CAN; 
-          callback_write_data(1, &control_character, &returned_size);  
+          callback_write_data(1, &control_character, &write_success);  
           //final state
           break;
       }
@@ -238,6 +237,7 @@ bool xmodem_transmit_process(const uint32_t current_time)
       {
             //decision, WRITE_BLOCK, END_OF_FILE
 //          transmit_state = XMODEM_TRANSMIT_READ_BLOCK;
+          transmit_state = XMODEM_TRANSMIT_WRITE_BLOCK;
           write_block_retries = 0;
           break;
       }
@@ -291,7 +291,7 @@ bool xmodem_transmit_process(const uint32_t current_time)
       case XMODEM_TRANSMIT_COMPLETE:
       {
           control_character = EOT; 
-          callback_write_data(1, &control_character, &returned_size);  
+          callback_write_data(1, &control_character, &write_success);  
           //final state
           break;
       }
@@ -315,7 +315,7 @@ bool xmodem_transmit_process(const uint32_t current_time)
 
 
 
-void xmodem_transmitter_set_callback_write(bool (*callback)(const uint32_t requested_size, uint8_t *buffer, uint32_t *returned_size))
+void xmodem_transmitter_set_callback_write(bool (*callback)(const uint32_t requested_size, uint8_t *buffer, bool *write_success))
 {
    callback_write_data = callback;
 }

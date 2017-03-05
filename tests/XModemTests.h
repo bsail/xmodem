@@ -16,6 +16,7 @@ extern "C" {
 /* Setup dummy functions for mocking out callbacks */
 static bool     transmitter_inbound_empty           = false;
 static bool     transmitter_result_inbound_buffer   = false;
+static bool     transmitter_returned_write_success  = false;
 static uint32_t transmitter_returned_inbound_size   = 0;
 static uint8_t  transmitter_inbound_buffer[INBOUND_BUFFER_SIZE];
 static uint32_t transmitter_requested_inbound_size  = 0;
