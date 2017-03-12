@@ -135,7 +135,7 @@ bool xmodem_transmit_process(const uint32_t current_time)
             xmodem_calculate_crc(current_packet.data, XMODEM_BLOCK_SIZE, &current_packet.crc);      
 
             /* write to output buffer */ 
-            callback_write_data(sizeof(current_packet), &current_packet, &write_success);  
+            callback_write_data(sizeof(current_packet), (uint8_t*)&current_packet, &write_success);  
 
             if (write_success) // check if the output buffer had room
             {
