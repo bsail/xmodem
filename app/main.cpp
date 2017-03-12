@@ -14,6 +14,10 @@ extern "C" {
 #include <vector>
 #include <iterator>
 #include <fstream>
+#include <assert.h>
+#include <chrono>
+
+static struct sp_port *port;
 
 bool read_file_to_buffer(std::string file_path, std::vector<char>& buffer) {
 
@@ -72,6 +76,7 @@ static uint8_t  transmitter_buffer[BUFFER_SIZE];
 static bool transmitter_is_inbound_empty()
 {
   return false;
+  
 }
 
 static bool transmitter_is_outbound_full()
@@ -81,23 +86,53 @@ static bool transmitter_is_outbound_full()
 
 static bool transmitter_read_data(const uint32_t requested_size, uint8_t *buffer, uint32_t *returned_size)
 {
-#if 0
-   transmitter_requested_inbound_size = requested_size;
-   memcpy(buffer, transmitter_inbound_buffer, requested_size); // maybe swap requested_size with returned_size
-   *returned_size = transmitter_returned_inbound_size;
-   return transmitter_result_inbound_buffer;
-#endif
-return true;
+   bool result = false;
+
+   if (0 != port)
+   {
+	*returned_size = sp_blocking_read(port, buffer, requested_size, 1000);
+        if (*returned_size > 0 && *returned_size < requested_size)
+        {
+           std::cout << "read:" << *returned_size << std::endl;
+           result = true;
+           assert(0);
+        } 
+ 
+   }
+   return result;
+
 }
 
 static bool transmitter_write_data(const uint32_t requested_size, uint8_t *buffer, bool *write_success)
 {
-   return true;
+   bool result = false;
+
+   if (0 != port)
+   {
+	auto returned_size = sp_blocking_write(port, buffer, requested_size, 1000);
+
+        if (returned_size == requested_size)
+        {
+           result = true;
+        } 
+   }
+   return result;
+}
+
+void padbuffer(std::vector<char> &buffer_transmit)
+{
+   auto pad = XMODEM_BLOCK_SIZE - (buffer_transmit.size() % XMODEM_BLOCK_SIZE);
+
+   for (uint8_t i = 0; i < pad; ++i)
+   {
+      buffer_transmit.push_back(0xFF);
+   }
+
+   assert(0 == buffer_transmit.size() % XMODEM_BLOCK_SIZE);
 }
 
 void transmit(std::string port_name, std::string baud, bool socat, std::string file)
 {
-   struct sp_port *port;
    port = new struct sp_port(); 
    char portnamearray[200];
    memset(portnamearray, 0, 200);
@@ -116,7 +151,11 @@ void transmit(std::string port_name, std::string baud, bool socat, std::string f
    xmodem_transmitter_set_callback_is_outbound_full(&transmitter_is_outbound_full);
    xmodem_transmitter_set_callback_is_inbound_empty(&transmitter_is_inbound_empty);
 
-   xmodem_transmit_init(transmitter_buffer, BUFFER_SIZE);
+   padbuffer(buffer_transmit);
+
+   // this works as std::vector guarantees contiguous memory allocation
+   xmodem_transmit_init(reinterpret_cast<uint8_t*>(buffer_transmit.data()), buffer_transmit.size());
+
    if (!socat)
    {
      auto result = sp_get_port_by_name(port_name.c_str(), &port); 
@@ -150,12 +189,15 @@ void transmit(std::string port_name, std::string baud, bool socat, std::string f
    if (0 == result)
    {
 
-           for (auto c : buffer_transmit)
-	   {
-	      sp_blocking_write(port, &c, 1, 2000);
-	      usleep(100);
+           while (XMODEM_TRANSMIT_COMPLETE != xmodem_transmit_state() &&
+                  XMODEM_TRANSMIT_ABORT_TRANSFER  != xmodem_transmit_state())
+           {
+              uint32_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+              xmodem_transmit_process(now); 
+              usleep(1000);
+              std::cout << "state: " << xmodem_transmit_state() << std::endl;
+           }
 
-	   }
 	   std::cout << "transmit: " << port_name << "," << baud << std::endl;
    }
    delete port;
@@ -283,8 +325,15 @@ void debug_print(const char*format, ...)
     va_end (args); 
 }
 
+void init()
+{
+   port = 0;
+}
+
 int main (int argc, char **argv )
 {
+
+   init();
 
     sp_debug_handler = debug_print;
  
