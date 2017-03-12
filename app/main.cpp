@@ -1,7 +1,10 @@
 #include <stdint.h>
+extern "C" {
 #include "xmodem/xmodem.h"
-#include "xmodem/xmodem_receiver.h"
 #include "xmodem/xmodem_transmitter.h"
+#include "xmodem/xmodem_receiver.h"
+}
+
 #include "serialport/libserialport.h"
 #include "serialport/libserialport_internal.h"
 #include "docopt/docopt.h"
