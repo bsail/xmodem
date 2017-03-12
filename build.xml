@@ -182,6 +182,7 @@ On OSX el capitan and later, be sure to disable System Integrity Protection:
     <arg value="-DCMAKE_BUILD_TYPE=Debug" />
     <arg value="-DCMAKE_INCLUDE_PATH=${install.host.dir}/include" />
     <arg value="-DCMAKE_LIBRARY_PATH=${install.host.dir}/lib" />
+    <arg value="-DINSTALL_DIR=${install.host.dir}" />
     <arg value="${app.dir}" />
   </exec>
 

@@ -21,6 +21,7 @@ bool read_file_to_buffer(std::string file_path, std::vector<char>& buffer) {
         return false;
     }
 
+
     // copies all data into buffer
     std::vector<char> prov(
         (std::istreambuf_iterator<char>(file)),
@@ -62,7 +63,36 @@ std::ostream& operator << (std::ostream& os, const std::vector<T>& v)
 }
 #endif
 
-void transmit(std::string port_name, std::string baud, bool socat)
+#define BUFFER_SIZE 1024
+static uint8_t  transmitter_buffer[BUFFER_SIZE];
+
+static bool transmitter_is_inbound_empty()
+{
+  return false;
+}
+
+static bool transmitter_is_outbound_full()
+{
+  return false;
+}
+
+static bool transmitter_read_data(const uint32_t requested_size, uint8_t *buffer, uint32_t *returned_size)
+{
+#if 0
+   transmitter_requested_inbound_size = requested_size;
+   memcpy(buffer, transmitter_inbound_buffer, requested_size); // maybe swap requested_size with returned_size
+   *returned_size = transmitter_returned_inbound_size;
+   return transmitter_result_inbound_buffer;
+#endif
+return true;
+}
+
+static bool transmitter_write_data(const uint32_t requested_size, uint8_t *buffer, bool *write_success)
+{
+   return true;
+}
+
+void transmit(std::string port_name, std::string baud, bool socat, std::string file)
 {
    struct sp_port *port;
    port = new struct sp_port(); 
@@ -75,6 +105,15 @@ void transmit(std::string port_name, std::string baud, bool socat)
 
    sp_return result = SP_OK;
 
+   std::vector<char> buffer_transmit;
+   read_file_to_buffer(file, buffer_transmit);
+
+   xmodem_transmitter_set_callback_write(&transmitter_write_data);
+   xmodem_transmitter_set_callback_read(&transmitter_read_data);
+   xmodem_transmitter_set_callback_is_outbound_full(&transmitter_is_outbound_full);
+   xmodem_transmitter_set_callback_is_inbound_empty(&transmitter_is_inbound_empty);
+
+   xmodem_transmit_init(transmitter_buffer, BUFFER_SIZE);
    if (!socat)
    {
      auto result = sp_get_port_by_name(port_name.c_str(), &port); 
@@ -92,7 +131,7 @@ void transmit(std::string port_name, std::string baud, bool socat)
 	   result = sp_open(port, SP_MODE_WRITE);
 	   if (SP_OK == result)
 	   {
-	      std::cout << "trasmit: " << port_name << "," << baud << std::endl;
+	      std::cout << "transmit: " << port_name << "," << baud << std::endl;
 	   } 
 	   else
 	   {
@@ -107,32 +146,11 @@ void transmit(std::string port_name, std::string baud, bool socat)
    
    if (0 == result)
    {
-	   char buffer[2048];
-	   strcpy(buffer, "*");
-	   uint16_t bytes_written = 0;
-           uint32_t cummulative_written = 0;
 
-	   while(1)
+           for (auto c : buffer_transmit)
 	   {
-	      bytes_written = sp_blocking_write(port, buffer, 1, 2000);
-              cummulative_written = cummulative_written + bytes_written;
-
-	      if (bytes_written > 0)
-	      {
-		 std::cout << "block write: ";
-		 std::cout << std::endl;
-	      }
-
-              if (!(cummulative_written % 50))
-              {             
-  	        bytes_written = sp_blocking_write(port, "\n", 1, 2000);
-//                cummulative_written = cummuulative_written + bytes_written;
-              }
-
-
+	      sp_blocking_write(port, &c, 1, 2000);
 	      usleep(100);
-
-
 
 	   }
 	   std::cout << "transmit: " << port_name << "," << baud << std::endl;
@@ -206,6 +224,20 @@ void receive(std::string port_name, std::string baud, bool socat)
 	   }
   }
   delete port;  // need to free structure's allocated memory, name, desc, etc, currently leaking
+}
+
+bool get_file(std::map<std::string, docopt::value> args, std::string &file)
+{
+  bool result = false; 
+  auto p = args.find("--file")->second;
+
+  if (p.isString())
+  {
+     file = p.asString();
+     result = true;
+  }
+  
+  return result;
 }
 
 bool get_port(std::map<std::string, docopt::value> args, std::string &port)
@@ -331,12 +363,14 @@ int main (int argc, char **argv )
     {
     std::string port = "";
     std::string baud = "";
+    std::string file = "";
    
     get_baud(args, baud);
+    get_file(args, file);
 
 	    if (get_port(args, port))
 	    {
-		    transmit(port, baud, socat_found);
+		    transmit(port, baud, socat_found, file);
 	    }
 	    else
 	    {
