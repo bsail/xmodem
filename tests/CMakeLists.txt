@@ -20,8 +20,14 @@ endif(APPLE)
 
 set(XMODEM_TEST_SOURCES test.cpp XModemTests.cpp)
 
+
+if(XMODEM_TEST)
 include_directories(SYSTEM ${INSTALL_DIR}/include)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}  ${INCLUDE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}  ${INCLUDE_DIR} )
+else(XMODEM_TEST)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}  ${INCLUDE_DIR} ${INSTALL_DIR}/include )
+endif(XMODEM_TEST)
+
 add_executable(xmodem_test ${XMODEM_TEST_SOURCES} ${XMODEM_TEST_HEADERS})
 
 #find_library(MBEDTLS_LIBRARY mbedcrypto ${INSTALL_LIBRARY_DIR})
