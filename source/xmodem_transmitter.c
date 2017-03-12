@@ -19,6 +19,7 @@ static const uint32_t  TRANSFER_EOT_TIMEOUT          = 10000; // 10 seconds
 static const uint32_t  TRANSFER_ETB_TIMEOUT          = 10000; // 10 seconds
 static const uint32_t  TRANSFER_WRITE_BLOCK_TIMEOUT  = 60000; // 60 seconds
 static const uint8_t   WRITE_BLOCK_MAX_RETRIES       = 10; // max 10 retries per block
+static const uint8_t   WRITE_ETB_MAX_RETRIES         = 5; // max 5 retries for ETB ACK
 static uint8_t         control_character             = 0;
 static bool            write_success                 = false;
 static uint32_t        returned_size                 = 0;
@@ -29,6 +30,7 @@ static uint32_t        payload_size                  = 0;
 static uint8_t         current_packet_id             = 0;
 static uint8_t         write_block_retries           = 0;
 static uint32_t        write_block_timer             = 0; 
+static uint8_t         write_etb_retries             = 0;
 static xmodem_packet_t current_packet;
 
 
@@ -57,6 +59,7 @@ bool xmodem_transmit_init(uint8_t *buffer, uint32_t size)
       payload_buffer_position = 0;
       write_block_retries     = 0;
       write_block_timer       = 0;
+      write_etb_retries       = 0;
       memset(&current_packet, 0, sizeof(xmodem_packet_t));
    }
 
@@ -347,6 +350,15 @@ bool xmodem_transmit_process(const uint32_t current_time)
 
       case XMODEM_TRANSMIT_TIMEOUT_ETB:
       {
+         if (WRITE_ETB_MAX_RETRIES > write_etb_retries)
+         {
+            ++write_etb_retries;
+            transmit_state = XMODEM_TRANSMIT_WRITE_ETB;
+         }
+         else
+         { 
+            transmit_state = XMODEM_TRANSMIT_COMPLETE;
+         }
       }
 
       case XMODEM_TRANSMIT_COMPLETE:
