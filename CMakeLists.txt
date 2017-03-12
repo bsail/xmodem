@@ -32,7 +32,7 @@ if((DEFINED RECEIVER_ONLY) AND (NOT DEFINED TRANSMITTER_ONLY))
 set(XMODEM_SOURCE_FILES  source/xmodem.c source/xmodem_receiver.c)
 set(XMODEM_HEADERS source/xmodem.h source/xmodem_receiver.h)
 set(XMODEM_PUBLIC_HEADERS source/xmodem.h source/xmodem_receiver.h)
-endif(RECEIVER_ONLY)
+endif((DEFINED RECEIVER_ONLY) AND (NOT DEFINED TRANSMITTER_ONLY))
 
 if(NOT DEFINED RECEIVER_ONLY AND NOT DEFINED TRANSMITTER_ONLY)
 set(XMODEM_SOURCE_FILES  source/xmodem.c source/xmodem_transmitter.c source/xmodem_receiver.c)
