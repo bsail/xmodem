@@ -63,7 +63,7 @@ TEST_F(XModemTests, XMODEM_VERIFY_PACKET)
       p.data[i] = i+1;
    }
 //this needs to be fixed to verify against a full 128 byte packet
- #if 0 
+ #if 1
    EXPECT_EQ(false, xmodem_verify_packet(p, 1));
 
    p.preamble = SOH;
@@ -73,7 +73,7 @@ TEST_F(XModemTests, XMODEM_VERIFY_PACKET)
    EXPECT_EQ(false, xmodem_verify_packet(p, 1));
 
    p.id_complement = 0xFF - p.id;
-   p.crc           = 0;
+   p.crc           = 0x9B66;
    EXPECT_EQ(true, xmodem_verify_packet(p, 1));
 
    p.crc       = 0xBB3D; 
@@ -82,7 +82,7 @@ TEST_F(XModemTests, XMODEM_VERIFY_PACKET)
    memset(buffer, 0, 10);
    memcpy(buffer,p.data, 9);
 
-   p.crc       = 0x2378; // expected value
+   p.crc       = 0x9B66; // expected value
    EXPECT_EQ(true, xmodem_verify_packet(p, 1));
 #endif
 }
