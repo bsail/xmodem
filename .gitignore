@@ -15,3 +15,4 @@ build.serialport
 build.app
 docopt
 build.docopt
+asio
