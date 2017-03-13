@@ -4,9 +4,6 @@ extern "C" {
 #include "xmodem/xmodem_transmitter.h"
 #include "xmodem/xmodem_receiver.h"
 }
-
-#include "serialport/libserialport.h"
-#include "serialport/libserialport_internal.h"
 #include "docopt/docopt.h"
 #include <iostream>
 #include <string>
@@ -17,7 +14,12 @@ extern "C" {
 #include <assert.h>
 #include <chrono>
 
-static struct sp_port *port;
+#define ASIO_STANDALONE 
+#include <asio.hpp>
+#include "serialport.h"
+
+static SerialClass serial;
+
 
 bool read_file_to_buffer(std::string file_path, std::vector<char>& buffer) {
 
@@ -87,7 +89,7 @@ static bool transmitter_is_outbound_full()
 static bool transmitter_read_data(const uint32_t requested_size, uint8_t *buffer, uint32_t *returned_size)
 {
    bool result = false;
-
+#if 0
    if (0 != port)
    {
 	*returned_size = sp_blocking_read(port, buffer, requested_size, 1000);
@@ -99,6 +101,7 @@ static bool transmitter_read_data(const uint32_t requested_size, uint8_t *buffer
         } 
  
    }
+#endif
    return result;
 
 }
@@ -106,7 +109,7 @@ static bool transmitter_read_data(const uint32_t requested_size, uint8_t *buffer
 static bool transmitter_write_data(const uint32_t requested_size, uint8_t *buffer, bool *write_success)
 {
    bool result = false;
-
+#if 0
    if (0 != port)
    {
 	auto returned_size = sp_blocking_write(port, buffer, requested_size, 1000);
@@ -116,6 +119,7 @@ static bool transmitter_write_data(const uint32_t requested_size, uint8_t *buffe
            result = true;
         } 
    }
+#endif
    return result;
 }
 
@@ -133,6 +137,7 @@ void padbuffer(std::vector<char> &buffer_transmit)
 
 void transmit(std::string port_name, std::string baud, bool socat, std::string file)
 {
+#if 0
    port = new struct sp_port(); 
    char portnamearray[200];
    memset(portnamearray, 0, 200);
@@ -142,7 +147,7 @@ void transmit(std::string port_name, std::string baud, bool socat, std::string f
    strncpy(portdescarray, "socat port", 200);
 
    sp_return result = SP_OK;
-
+#endif
    std::vector<char> buffer_transmit;
    read_file_to_buffer(file, buffer_transmit);
 
@@ -155,7 +160,7 @@ void transmit(std::string port_name, std::string baud, bool socat, std::string f
 
    // this works as std::vector guarantees contiguous memory allocation
    xmodem_transmit_init(reinterpret_cast<uint8_t*>(buffer_transmit.data()), buffer_transmit.size());
-
+#if 0
    if (!socat)
    {
      auto result = sp_get_port_by_name(port_name.c_str(), &port); 
@@ -185,7 +190,7 @@ void transmit(std::string port_name, std::string baud, bool socat, std::string f
       std::cout << "transmit: error configuring port " << port_name << " error: " << result << std::endl;
 
    }
-   
+
    if (0 == result)
    {
 
@@ -200,11 +205,15 @@ void transmit(std::string port_name, std::string baud, bool socat, std::string f
 
 	   std::cout << "transmit: " << port_name << "," << baud << std::endl;
    }
+
    delete port;
+
+  #endif 
 }
 
 void receive(std::string port_name, std::string baud, bool socat)
 {
+#if 0
    struct sp_port *port;
    port = new struct sp_port(); 
    char portnamearray[200];
@@ -269,6 +278,7 @@ void receive(std::string port_name, std::string baud, bool socat)
 	   }
   }
   delete port;  // need to free structure's allocated memory, name, desc, etc, currently leaking
+#endif
 }
 
 bool get_file(std::map<std::string, docopt::value> args, std::string &file)
@@ -317,26 +327,12 @@ bool get_baud(std::map<std::string, docopt::value> args, std::string &baud)
 }
 
 
-void debug_print(const char*format, ...)
-{
-    va_list args;
-    va_start (args, format);
-    vprintf(format, args);
-    va_end (args); 
-}
 
-void init()
-{
-   port = 0;
-}
 
 int main (int argc, char **argv )
 {
 
-   init();
 
-    sp_debug_handler = debug_print;
- 
     int exit_code = 0;
 
 	static const char USAGE[] =
@@ -450,28 +446,8 @@ int main (int argc, char **argv )
   } 
   else if (enumerate_found)
   {
-     struct sp_port **port_list;
-
-      if (SP_OK == sp_list_ports(&port_list))
-      {
-          if (NULL != port_list)
-          {
-             uint8_t index = 0;
-             while (0 != port_list[index])
-             {
-                std::string str(port_list[index]->name);
-                std::cout << "port: " << str << std::endl; 
-                ++index;
-             }
-
-             sp_free_port_list(port_list);
-          }
-      }
-      else
-      {
-         std::cout << "enumerate: no ports found" << std::endl;
-         exit_code = 1;
-      }
+     std::cout << "enumerate: no ports found" << std::endl;
+     exit_code = 1;
   }
   else
   {
@@ -488,4 +464,25 @@ int main (int argc, char **argv )
   return exit_code;
 }
 
+#if 0
+    int main(int argc, char* argv[])
+    {
+        if (serial.connect("/home/dnad/pts1", 115200))
+        {
+            std::cout<<"Port is open."<<std::endl;
+        }
+        else
+        {
+            std::cout<<"Port open failed."<<std::endl;
+        }
 
+        while (!serial.quit())
+        {
+            //Do something...
+            serial.send("Text\r\n");
+            usleep(1000*500);
+        }
+
+        return 0;
+    }
+#endif
