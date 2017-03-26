@@ -16,7 +16,7 @@
             //Stop the I/O services
             io.stop();
             //Wait for the thread to finish
-            runner.join();
+           // runner.join();
         }
 
         bool SerialClass::connect(const std::string& port_name, int baud)
