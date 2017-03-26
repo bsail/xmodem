@@ -1,15 +1,22 @@
+#include <cstdio>
+#include <string>
+#include <asio.hpp>
+#include <cstddef>
+#include <iostream>
+#include <thread>
+#include <functional>
 #include "serialport.h"
 
     SerialClass::SerialClass():
-    port(io){};
-//            quitFlag(false){};
+    port(io),quitFlag(false){};
+            
 
         SerialClass::~SerialClass()
         {
             //Stop the I/O services
             io.stop();
             //Wait for the thread to finish
-//            runner.join();
+            runner.join();
         }
 
         bool SerialClass::connect(const std::string& port_name, int baud)
@@ -23,14 +30,8 @@
 
             if (port.is_open())
             {
-                //Start io-service in a background thread.
-                //boost::bind binds the ioservice instance
-                //with the method call
-/*                runner = boost::thread(
-                        boost::bind(
-                                &boost::asio::io_service::run,
-                                &io));
-*/
+                //runner = 
+                std::bind(static_cast<std::size_t (asio::io_service::*)()>(&asio::io_service::run), &io);
                 startReceive();
             }
 
@@ -39,24 +40,21 @@
 
         void SerialClass::startReceive()
         {
-#if 0
             using namespace asio;
             //Issue a async receive and give it a callback
             //onData that should be called when "\r\n"
             //is matched.
             async_read_until(port, buffer,
                     "\r\n",
-                    boost::bind(&SerialClass::onData,
-                            this, _1,_2));
-#endif
+                    std::bind(&SerialClass::onData,
+                            this, std::placeholders::_1,std::placeholders::_2));
         }
 
         void SerialClass::send(const std::string& text)
         {
             asio::write(port, asio::buffer(text));
         }
-#if 0
-        void onData(const system::error_code& e,
+        void SerialClass::onData(const asio::error_code& e,
                 std::size_t size)
         {
             if (!e)
@@ -74,8 +72,8 @@
 
             startReceive();
         };
-#endif
-//        bool SerialClass::quit(){return quitFlag;}
+
+        bool SerialClass::quit(){return quitFlag;}
 
 
 

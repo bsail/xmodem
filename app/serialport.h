@@ -1,6 +1,3 @@
-#include <string>
-#include <asio.hpp>
-
 class SerialClass
 {
   public:
@@ -15,11 +12,13 @@ class SerialClass
       void startReceive();
       //Function for sending a data string
       void send(const std::string& text);
+      bool quit();
+
   private:
       //The callback function that will be executed when data 
       //arrives.
-//      void onData(const asio::system::error_code& e, 
- //                                            std::size_t size)
+      void onData(const asio::error_code& e, std::size_t size);
+                                             
 
       //Boost.Asio I/O service required for asynchronous 
       //operation
@@ -27,8 +26,9 @@ class SerialClass
       //Serial port accessor class
       asio::serial_port port;
       //Background thread
-//      thread runner;
+      std::thread runner;
       //Buffer in which to read the serial data
       asio::streambuf buffer; 
+      bool quitFlag;
 };
 
