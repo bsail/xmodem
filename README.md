@@ -23,7 +23,7 @@ Get Code
 ```bash
 mkdir xmodem
 cd xmodem
-repo init -m xmodem.xml -u ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/mutex.io.xmodem
+repo init -m xmodem.xml -u git://github.com/caseykelso/xmodem.git
 repo sync
 ```
 
@@ -32,9 +32,6 @@ Build Application
 ```bash
 ant all_app
 ```
-
-
-
 
 Build Library - HLOS
 ------------------
