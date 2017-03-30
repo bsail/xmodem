@@ -1,6 +1,8 @@
 Embedded XModem
 ===============
 
+# Development
+
 Setup Environment - OSX
 ------------------------
 * Follow instructions to install git-repo http://source.android.com/source/downloading.html#installing-repo
@@ -39,7 +41,25 @@ Build Library - HLOS
 ant all_lib
 ```
 
+Build & Run Unit Tests
+--------------------
+* It is required that the library be built first.
+```bash
+ant
+```
+
 Build Library - Bare Metal
 -------------------------- 
 TBD
+
+# Tests
+## Unit Tests
+Unit testing is implemented with Google's GTest.
+### Transmit State Machine
+All transitions are covered via unit tests.
+
+<img src="documentation/xmodem_transmit_fsm.png"  />
+
+### Receive State Machine
+## Integration Tests
 
