@@ -29,23 +29,29 @@ repo init -m xmodem.xml -u git://github.com/caseykelso/xmodem.git
 repo sync
 ```
 
-Build Application
+Build Application and All Dependencies
 -----------------
 ```bash
 ant all_app
 ```
 
-Build Library - HLOS
+Build Library - HLOS and All Dependencies
 ------------------
 ```bash
 ant all_lib
 ```
 
-Build & Run Unit Tests
---------------------
-* It is required that the library be built first.
+Build Application Only (development iterations)
+------------------
 ```bash
-ant
+ant app
+```
+
+or
+
+```bash
+cd build.app
+make
 ```
 
 Build Library - Bare Metal
@@ -54,12 +60,33 @@ TBD
 
 # Tests
 ## Unit Tests
+
+Build & Run Unit Tests
+--------------------
+* It is required that the library be built first.
+```bash
+ant tests
+```
+
 Unit testing is implemented with Google's GTest.
+
 ### Transmit State Machine
 All transitions are covered via unit tests.
 
 <img src="documentation/xmodem_transmit_fsm.png"  />
 
 ### Receive State Machine
-## Integration Tests
+All transitions are covered via unit tests.
 
+<img src="documentation/xmodem_receive_fsm.png"  />
+
+## Integration Tests
+Open a terminal
+```bash
+ant socat
+```
+
+Open a second terminal
+```bash
+tbd
+```
