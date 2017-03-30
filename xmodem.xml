@@ -4,10 +4,7 @@
    <remote name="github"
            fetch="https://github.com" />
 
-   <default revision="master"
-            remote="amazon"
-            sync-j="8" />
-  
+ 
    <project name="caseykelso/ringbuffer"                    remote="github"  path="ringbuffer" revision="master" />  
    <project name="caseykelso/xmodem"                        remote="github"  path="." revision="master" />
    <project name="google/googletest.git"                    remote="github"  path="gtest"  clone-depth="1"   revision="master"  />
