@@ -1,3 +1,7 @@
+#ifndef ASIO_STANDALONE
+#define ASIO_STANDALONE  1
+#endif
+
 #include <cstdio>
 #include <string>
 #include <asio.hpp>
