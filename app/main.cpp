@@ -14,7 +14,7 @@ extern "C" {
 #include <assert.h>
 #include <chrono>
 #ifndef ASIO_STANDALONE
-#define ASIO_STANDALONE  1
+#define ASIO_STANDALONE 1
 #endif
 #include <asio.hpp>
 #include "serialport.h"
