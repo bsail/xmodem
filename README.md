@@ -12,6 +12,8 @@ sudo apt-get install build-essential socat lrzsz minicom ant git libgtest-dev cm
 Build and install libXMODEM
 --------------------------------
 ```bash
+git clone git@github.com:caseykelso/xmodem.git
+cd xmodem
 mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=../installdirectory
