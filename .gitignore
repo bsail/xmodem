@@ -16,3 +16,5 @@ build.app
 docopt
 build.docopt
 asio
+build.*
+install*
