@@ -23,7 +23,7 @@ add_executable(x ${XMODEM_APP_SOURCE_FILES})
 link_directories(${INSTALL_DIR}/lib)
 
 if(APPLE)
-target_link_libraries(x ${INSTALL_DIR}/lib/libxmodem.a docopt system stdc++ "-framework Foundation" "-framework IOKit" )
+target_link_libraries(x ${INSTALL_DIR}/lib/libxmodem.a docopt  stdc++ "-framework Foundation" "-framework IOKit" )
 else(APPLE)
 target_link_libraries(x ${INSTALL_DIR}/lib/libxmodem.a docopt pthread)
 endif(APPLE)
