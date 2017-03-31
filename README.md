@@ -9,26 +9,14 @@ Setup Environment - Ubuntu 16.10
 sudo apt-get install build-essential socat lrzsz minicom ant git libgtest-dev cmake
 ```
 
-Build libXmodem
+Build and install libXMODEM
 --------------------------------
 ```bash
-mkdir install
 mkdir build
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=../install
+cmake .. -DCMAKE_INSTALL_PREFIX=../installdirectory
 make install -j8
 ```
-
-Build Test
---------------------------------
-```bash
-mkdir build.test
-cd build.test
-cmake ../tests/ -DCMAKE_INSTALL_PREFIX=$PWD/../install -DXMODEM_TEST=1 -DINSTALL_DIR=$PWD/../install
-make install -j8
-```
-
-
 
 # Development
 
