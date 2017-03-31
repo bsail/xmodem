@@ -239,6 +239,7 @@ On OSX el capitan and later, be sure to disable System Integrity Protection:
   </exec>
 
   <exec executable="${test.bin}" failonerror="true">
+    <arg value="--gtest_output=xml" />
   </exec>
 
 </target>
