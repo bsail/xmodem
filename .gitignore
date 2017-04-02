@@ -18,3 +18,4 @@ build.docopt
 asio
 build.*
 install*
+test_detail.xml
