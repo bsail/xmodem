@@ -10,74 +10,58 @@
 #include <functional>
 #include "serialport.h"
 
-    SerialClass::SerialClass():
-    port(io),quitFlag(false){};
-            
+    SerialClass::SerialClass():port(io)
+    {
+    }
 
-        SerialClass::~SerialClass()
+    SerialClass::~SerialClass()
+    {
+       io.stop();
+    }
+
+    bool SerialClass::connect(const std::string& port_name, int baud)
+    {
+        using namespace asio;
+        asio::error_code error;
+        port.open(port_name, error);
+
+        std::cout << "error: " << error << std::endl;
+        std::cout << "port: " << port_name << std::endl;
+
+        //Setup port
+        port.set_option(serial_port::baud_rate(baud));
+        port.set_option(serial_port::flow_control(
+                serial_port::flow_control::none));
+
+
+        return port.is_open();
+     }
+
+        uint32_t SerialClass::read(const uint32_t requested_size, uint8_t *buffer)
         {
-            //Stop the I/O services
-            io.stop();
-            //Wait for the thread to finish
-           // runner.join();
+           uint32_t read_bytes = 0;
+           bool failed = false;
+           try
+           {
+              read_bytes = asio::read(port, asio::buffer(buffer, requested_size));
+           }
+           catch(std::system_error)
+           {
+             failed = true;
+           }
+
+           return read_bytes;
         }
 
-        bool SerialClass::connect(const std::string& port_name, int baud)
+        void SerialClass::write(const uint32_t requested_size, uint8_t *buffer)
         {
-            using namespace asio;
-            port.open(port_name);
-            //Setup port
-            port.set_option(serial_port::baud_rate(baud));
-            port.set_option(serial_port::flow_control(
-                    serial_port::flow_control::none));
-
-            if (port.is_open())
+            try
             {
-                //runner = 
-                std::bind(static_cast<std::size_t (asio::io_service::*)()>(&asio::io_service::run), &io);
-                startReceive();
+               asio::write(port, asio::buffer(buffer, requested_size));
             }
-
-            return port.is_open();
-        }
-
-        void SerialClass::startReceive()
-        {
-            using namespace asio;
-            //Issue a async receive and give it a callback
-            //onData that should be called when "\r\n"
-            //is matched.
-            async_read_until(port, buffer,
-                    "\r\n",
-                    std::bind(&SerialClass::onData,
-                            this, std::placeholders::_1,std::placeholders::_2));
-        }
-
-        void SerialClass::send(const std::string& text)
-        {
-            asio::write(port, asio::buffer(text));
-        }
-        void SerialClass::onData(const asio::error_code& e,
-                std::size_t size)
-        {
-            if (!e)
+            catch(std::system_error)
             {
-                std::istream is(&buffer);
-                std::string data(size,'\0');
-                is.read(&data[0],size);
-
-                std::cout<<"Received data:"<<data;
-
-                //If we receive quit()\r\n indicate
-                //end of operations
-                quitFlag = (data.compare("quit()\r\n") == 0);
-            };
-
-            startReceive();
-        };
-
-        bool SerialClass::quit(){return quitFlag;}
-
-
+            }
+        }
 
 

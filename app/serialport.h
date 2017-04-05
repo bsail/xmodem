@@ -1,34 +1,16 @@
 class SerialClass
 {
   public:
-      //Class constructor
       SerialClass();
-      //Class destructor
       ~SerialClass();
-      //Connection method that will setup the serial port
-      bool connect(const std::string& port_name, int baud = 9600);
-      //The method that will be called to issue a new 
-      //asynchronous read
-      void startReceive();
-      //Function for sending a data string
-      void send(const std::string& text);
-      bool quit();
+      bool connect(const std::string& port_name, int baud = 115200);
+      void write(const uint32_t requested_size, uint8_t *buffer);
+      uint32_t read(const uint32_t requested_size, uint8_t *buffer);
 
   private:
-      //The callback function that will be executed when data 
-      //arrives.
-      void onData(const asio::error_code& e, std::size_t size);
-                                             
-
       //Boost.Asio I/O service required for asynchronous 
-      //operation
       asio::io_service io;
       //Serial port accessor class
       asio::serial_port port;
-      //Background thread
-      std::thread runner;
-      //Buffer in which to read the serial data
-      asio::streambuf buffer; 
-      bool quitFlag;
 };
 
