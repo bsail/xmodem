@@ -100,6 +100,43 @@ static bool transmitter_write_data(const uint32_t requested_size, uint8_t *buffe
    return result;
 }
 
+
+static uint8_t  receiver_buffer[BUFFER_SIZE];
+
+static bool receiver_is_inbound_empty()
+{
+  return false;
+  
+}
+
+static bool receiver_is_outbound_full()
+{
+  return false;
+}
+
+static bool receiver_read_data(const uint32_t requested_size, uint8_t *buffer, uint32_t *returned_size)
+{
+   bool result = false;
+   *returned_size = serial.read(requested_size, buffer);
+   return result;
+
+}
+
+static bool receiver_write_data(const uint32_t requested_size, uint8_t *buffer, uint32_t *bytes_written)
+{
+   bool result = false;
+   std::string str((char*)buffer);
+   serial.write(requested_size, buffer);
+   
+   return result;
+}
+
+
+
+
+
+
+
 void padbuffer(std::vector<char> &buffer_transmit)
 {
    auto pad = XMODEM_BLOCK_SIZE - (buffer_transmit.size() % XMODEM_BLOCK_SIZE);
@@ -155,18 +192,15 @@ void receive(std::string port_name, std::string baud, std::string file)
 {
 
 
-   std::vector<char> buffer_transmit;
-   read_file_to_buffer(file, buffer_transmit);
-#if 0
-   xmodem_receiver_set_callback_write(&callback_write_data);
-   xmodem_receiver_set_callback_read(&callback_read_data);
-   xmodem_receiver_set_callback_is_outbound_full(&callback_is_outbound_full);
-   xmodem_receiver_set_callback_is_inbound_empty(&callback_is_inbound_empty);
-#endif
-   padbuffer(buffer_transmit);
+   std::vector<char> buffer_receive;
+   xmodem_receiver_set_callback_write(&receiver_write_data);
+   xmodem_receiver_set_callback_read(&receiver_read_data);
+   xmodem_receiver_set_callback_is_outbound_full(&receiver_is_outbound_full);
+   xmodem_receiver_set_callback_is_inbound_empty(&receiver_is_inbound_empty);
+   padbuffer(buffer_receive);
 
    // this works as std::vector guarantees contiguous memory allocation
-   xmodem_transmit_init(reinterpret_cast<uint8_t*>(buffer_transmit.data()), buffer_transmit.size());
+   xmodem_receive_init();
 
  
   if (!serial.connect(port_name, 115200))
@@ -175,16 +209,20 @@ void receive(std::string port_name, std::string baud, std::string file)
   }
 
 
-   while (XMODEM_TRANSMIT_COMPLETE != xmodem_transmit_state() &&
-	  XMODEM_TRANSMIT_ABORT_TRANSFER  != xmodem_transmit_state())
+   while (XMODEM_RECEIVE_TRANSFER_COMPLETE != xmodem_receive_state() &&
+	  XMODEM_RECEIVE_ABORT_TRANSFER  != xmodem_receive_state())
    {
       uint32_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
-      xmodem_transmit_process(now); 
+      xmodem_receive_process(now); 
       usleep(1000);
-      if (1 != xmodem_transmit_state())
+
+      std::cout << "state: " << xmodem_receive_state() << std::endl;
+
+#if 0
+      if (1 != xmodem_receive_state())
       {
-        std::cout << "state: " << xmodem_transmit_state() << std::endl;
       }     
+#endif
    }
 
 
@@ -248,7 +286,7 @@ int main (int argc, char **argv )
 	R"(nanoXmodem.
 
 	    Usage:
-	      x --port=<port> --receive [--baud=<baudrate>]
+	      x --port=<port> --receive  --file=<filename> [--baud=<baudrate>]
 	      x --port=<port> --transmit --file=<filename> [--baud=<baudrate>]
               x --enumerate
 	      x (-h | --help)
