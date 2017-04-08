@@ -81,6 +81,9 @@
   <delete dir="${tests.build}" />
   <delete dir="${gtest.build}" />
   <delete dir="${build}" />
+  <delete dir="${cmake.build}" />	
+  <delete dir="${docopt.build}" />
+  <delete dir="${app.build}" />
 </target>
 
 <target name="xmodem_transmitteronly_release">
