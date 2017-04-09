@@ -236,7 +236,7 @@
 </target>
 
 
-<target name="tests_system">
+<target name="tests_system" depends="app" >
   
   <!-- setup a clean workspace -->
   <delete dir="${tests.tmp}" />
@@ -253,15 +253,14 @@
   <parallel>
 
   <!-- setup virtual serial port -->
-
-  <exec executable="socat" dir="${build}" failonerror="true" timeout="10000" >
+  <exec executable="socat" dir="${build}" failonerror="false" timeout="10000" >
     <arg value="PTY,mode=666,echo=1,link=${basedir}/ttyhost" />
     <arg value="PTY,mode=666,echo=1,link=${basedir}/ttyembedded" />
   </exec>
-   
+
   <sequential>
 
-          <sleep seconds="1" />
+          <sleep seconds="2" />
 	  <exec executable="${install.host.dir}/bin/x" timeout="10000" >
 	    <env key="LD_LIBRARY_PATH" value="${install.host.dir}/lib" />
 	    <arg value="--port=${basedir}/ttyhost" />
@@ -273,7 +272,7 @@
 
   <sequential>
  
-          <sleep seconds="1" /> 
+          <sleep seconds="5" /> 
 	  <exec executable="${install.host.dir}/bin/x" timeout="10000" >
 	    <env key="LD_LIBRARY_PATH" value="${install.host.dir}/lib" />
 	    <arg value="--port=${basedir}/ttyembedded" />
@@ -288,7 +287,7 @@
 
   <!-- compare the results, files should match -->
   <exec executable="diff">
-    <arg value="${tests.dir}/transmit.txt" />
+    <arg value="${tests.tmp}/transmit.txt" />
     <arg value="${tests.tmp}/receive.txt" />
   </exec>
 
