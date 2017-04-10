@@ -147,7 +147,7 @@
 </target>
 
 <target name="xmodem">
-  <delete dir="${build}" />
+<!--  <delete dir="${build}" /> -->
   <mkdir  dir="${build}" />
 
   <exec executable="${cmake.bin}" dir="${build}" failonerror="true" >
@@ -212,7 +212,7 @@
 
 <target name="tests" depends="xmodem" >
 
-  <delete dir="${tests.build}" />
+<!--  <delete dir="${tests.build}" /> -->
   <mkdir dir="${tests.build}" />
 
   <exec executable="${cmake.bin}" dir="${tests.build}" failonerror="true" >
