@@ -83,6 +83,7 @@
   <delete dir="${install.host.dir}" />
   <delete dir="${install.target.dir}" />
   <delete dir="${tests.build}" />
+  <delete dir="${tests.tmp}" />
   <delete dir="${gtest.build}" />
   <delete dir="${build}" />
   <delete dir="${cmake.build}" />	
