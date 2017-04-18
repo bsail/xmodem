@@ -82,6 +82,24 @@ bool xmodem_receive_process(const uint32_t current_time)
          break;
       }
 
+      case XMODEM_RECEIVE_WAIT_FOR_ACK:
+      {
+         //TODO: check time and transition on received ACK or timeout
+         break;
+      }
+
+      case XMODEM_RECEIVE_TIMEOUT_ACK:
+      { 
+         //TODO: implement retry logic, if more than 5 retries goto ABORT_TRANSFER
+         break;
+      }
+
+      case XMODEM_RECEIVE_ABORT_TRANSFER:
+      {
+         //TODO: implement final state
+         break;
+      }
+
       case XMODEM_RECEIVE_UNKNOWN:
       {
           receive_state = XMODEM_RECEIVE_ABORT_TRANSFER;

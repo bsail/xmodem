@@ -1251,7 +1251,22 @@ TEST_F(XModemTests, XMODEM_RECEIVE_SUCCESS_READ_BLOCK)
 
 }
 
+TEST_F(XModemTests, XMODEM_RECEIVE_ABORT_TRANSFER)
+{
+  xmodem_receive_set_callback_write(&receiver_write_data);
+  xmodem_receive_set_callback_read(&receiver_read_data);
+  xmodem_receive_set_callback_is_outbound_full(&receiver_is_outbound_full);
+  xmodem_receive_set_callback_is_inbound_empty(&receiver_is_inbound_empty);
 
+  EXPECT_EQ(true, xmodem_receive_init());
+  EXPECT_EQ(XMODEM_RECEIVE_INITIAL, xmodem_receive_state());
+
+  uint32_t timestamp = 0;
+
+  //TODO: Implement unit tests here
+
+  EXPECT_EQ(true, xmodem_receive_cleanup());
+}
 
 int main (int argc, char** argv)
 {
