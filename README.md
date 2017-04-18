@@ -101,7 +101,7 @@ All transitions are covered via unit tests.
 <img src="documentation/xmodem_transmit_fsm.png"  />
 
 ### Receive State Machine
-All transitions are covered via unit tests.
+All transitions are NOT YET covered via unit tests.
 
 <img src="documentation/xmodem_receive_fsm.png"  />
 
