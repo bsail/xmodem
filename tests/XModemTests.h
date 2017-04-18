@@ -33,6 +33,26 @@ static uint32_t transmitter_buffer_position         = 0;
 static uint32_t transmitter_timer                   = 0;
 static uint8_t  transmitter_packet_number           = 0;
 
+static bool     receiver_inbound_empty           = false;
+static bool     receiver_result_inbound_buffer   = false;
+static bool     receiver_returned_write_success  = false;
+static uint32_t receiver_returned_inbound_size   = 0;
+static uint8_t  receiver_inbound_buffer[INBOUND_BUFFER_SIZE];
+static uint32_t receiver_requested_inbound_size  = 0;
+
+static bool     receiver_outbound_full           = false;
+static bool     receiver_result_outbound_buffer  = false;
+static uint32_t receiver_returned_outbound_size  = 0;
+static uint8_t  receiver_outbound_buffer[OUTBOUND_BUFFER_SIZE];
+static uint32_t receiver_requested_outbound_size = 0;
+static uint8_t  receiver_block_counter           = 0;
+static uint8_t  receiver_tmp                     = 0;
+static uint8_t  receiver_buffer[BUFFER_SIZE];
+static uint32_t receiver_buffer_position         = 0;
+static uint32_t receiver_timer                   = 0;
+static uint8_t  receiver_packet_number           = 0;
+
+
 
 
 static void sendserial(char* data, const size_t data_size)

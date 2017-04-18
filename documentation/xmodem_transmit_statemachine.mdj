@@ -378,7 +378,7 @@
 											"height": 13,
 											"autoResize": false,
 											"underline": false,
-											"text": "XMODEM_TRANSMIT_WAIT_FOR_TRANSFER_ACK",
+											"text": "XMODEM_TRANSMIT_WAIT_FOR_C_ACK",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5,
 											"wordWrap": false
@@ -890,7 +890,7 @@
 											"height": 13,
 											"autoResize": false,
 											"underline": false,
-											"text": "XMODEM_TRANSMIT_TRANSFER_ACK_RECEIVED",
+											"text": "XMODEM_TRANSMIT_C_ACK_RECEIVED",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5,
 											"wordWrap": false
@@ -7090,7 +7090,7 @@
 							"_parent": {
 								"$ref": "AAAAAAFUlMC+Dax4RR8="
 							},
-							"name": "XMODEM_TRANSMIT_WAIT_FOR_TRANSFER_ACK",
+							"name": "XMODEM_TRANSMIT_WAIT_FOR_C_ACK",
 							"visibility": "public"
 						},
 						{
@@ -7108,7 +7108,7 @@
 							"_parent": {
 								"$ref": "AAAAAAFUlMC+Dax4RR8="
 							},
-							"name": "XMODEM_TRANSMIT_TRANSFER_ACK_RECEIVED",
+							"name": "XMODEM_TRANSMIT_C_ACK_RECEIVED",
 							"visibility": "public"
 						},
 						{

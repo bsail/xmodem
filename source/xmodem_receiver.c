@@ -7,7 +7,7 @@
 static bool (*callback_is_inbound_empty)();
 static bool (*callback_is_outbound_full)();
 static bool (*callback_read_data)(const uint32_t requested_size, uint8_t *buffer, uint32_t *returned_size);
-static bool (*callback_write_data)(const uint32_t requested_size, uint8_t *buffer, uint32_t *returned_size);
+static bool (*callback_write_data)(const uint32_t requested_size, uint8_t *buffer, bool *write_status);
 
 static xmodem_receive_state_t receive_state;
 
@@ -46,7 +46,7 @@ bool xmodem_receive_init()
    return result;
 }
 
-bool xmodem_receiver_cleanup()
+bool xmodem_receive_cleanup()
 {
    callback_is_inbound_empty = 0;
    callback_is_outbound_full = 0;
@@ -72,13 +72,13 @@ bool xmodem_receive_process(const uint32_t current_time)
 
       case XMODEM_RECEIVE_INITIAL:
       {
-         receive_state = XMODEM_RECEIVE_WAIT_FOR_NACK;
+         receive_state = XMODEM_RECEIVE_SEND_C;
          break;
       }
 
-      case XMODEM_RECEIVE_WAIT_FOR_NACK:
+      case XMODEM_RECEIVE_SEND_C:
       {
-         receive_state = XMODEM_RECEIVE_SEND_REQUEST_FOR_TRANSFER;
+         receive_state = XMODEM_RECEIVE_WAIT_FOR_ACK;
          break;
       }
 
@@ -88,13 +88,12 @@ bool xmodem_receive_process(const uint32_t current_time)
           break;
       }
 
-#if 0
-      case XMODEM_TRANSMIT_READ_BLOCK:
+      case XMODEM_RECEIVE_READ_BLOCK:
       {
 
           if (current_time > (stopwatch + READ_BLOCK_TIMEOUT))
           {
-             transmit_state = XMODEM_TRANSMIT_TIMEOUT_WAIT_READ_BLOCK;
+             receive_state = XMODEM_RECEIVE_READ_BLOCK_TIMEOUT;
           }
           else
           {
@@ -109,60 +108,49 @@ bool xmodem_receive_process(const uint32_t current_time)
                 {
                    if (ACK == inbound)
                    {
-                       transmit_state = XMODEM_TRANSFER_ACK_RECEIVED;
+                       receive_state = XMODEM_RECEIVE_ACK_SUCCESS;
                    }
                    else if (EOT == inbound)
                    {
-                       transmit_state = XMODEM_TRANSFER_COMPLETE;
+                       receive_state = XMODEM_RECEIVE_TRANSFER_COMPLETE;
                    }
                 } 
              } 
-             //TODO: check for ACK or EOT in inbound buffer
 
           }
           break;
       }
-#endif
 
-#if 0
-      case XMODEM_TRANSMIT_TIMEOUT_WAIT_READ_BLOCK:
+      case XMODEM_RECEIVE_READ_BLOCK_TIMEOUT:
       {
-          transmit_state = XMODEM_TRANSMIT_ABORT_TRANSFER;
+          receive_state = XMODEM_RECEIVE_ABORT_TRANSFER;
           stopwatch = current_time;
           break;
       }
 
-#endif
-
-
-
-#if 0 
-      case XMODEM_TRANSMIT_BLOCK_RECEIVED:
+      case XMODEM_RECEIVE_READ_BLOCK_SUCCESS:
       {
           break;
       }
 
-      case XMODEM_TRANSMIT_INVALID_BLOCK:
+      case XMODEM_RECEIVE_BLOCK_INVALID:
       {
           break;
       }
 
-      case XMODEM_TRANSMIT_VALID_BLOCK:
+      case XMODEM_RECEIVE_BLOCK_VALID:
       {
-          transmit_state = XMODEM_TRANSMIT_ACK_BLOCK;
+          receive_state = XMODEM_RECEIVE_BLOCK_ACK;
           break;
       }
 
-      case XMODEM_TRANSMIT_ACK_BLOCK:
+      case XMODEM_RECEIVE_BLOCK_ACK:
       {
           //TODO: send ACK
           stopwatch = current_time;  // start the stopwatch to watch for a TRANSFER_ACK TIMEOUT
-          transmit_state = XMODEM_TRANSMIT_WAIT_FOR_TRANSFER_ACK;
+          receive_state = XMODEM_RECEIVE_WAIT_FOR_ACK;
           break;
       }
-
-#endif
-
 
       default:
       {
@@ -173,28 +161,28 @@ bool xmodem_receive_process(const uint32_t current_time)
 
    };
 
-   return false;
+   return true;
     
 }
 
 
 
-void xmodem_receiver_set_callback_write(bool (*callback)(const uint32_t requested_size, uint8_t *buffer, uint32_t *returned_size))
+void xmodem_receive_set_callback_write(bool (*callback)(const uint32_t requested_size, uint8_t *buffer, bool *write_status))
 {
    callback_write_data = callback;
 }
 
-void xmodem_receiver_set_callback_read(bool (*callback)(const uint32_t requested_size, uint8_t *buffer, uint32_t *returned_size))
+void xmodem_receive_set_callback_read(bool (*callback)(const uint32_t requested_size, uint8_t *buffer, uint32_t *returned_size))
 {
    callback_read_data = callback;
 }
 
-void xmodem_receiver_set_callback_is_outbound_full(bool (*callback)())
+void xmodem_receive_set_callback_is_outbound_full(bool (*callback)())
 {
    callback_is_outbound_full = callback;
 }
 
-void xmodem_receiver_set_callback_is_inbound_empty(bool (*callback)())
+void xmodem_receive_set_callback_is_inbound_empty(bool (*callback)())
 {
    callback_is_inbound_empty = callback;
 }

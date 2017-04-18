@@ -142,7 +142,7 @@ bool xmodem_transmit_process(const uint32_t current_time)
 	       /* increment for next packet */
 	       ++current_packet_id;        
 	       payload_buffer_position = payload_buffer_position + XMODEM_BLOCK_SIZE;
-               transmit_state = XMODEM_TRANSMIT_WAIT_FOR_TRANSFER_ACK; // end of document
+               transmit_state = XMODEM_TRANSMIT_WAIT_FOR_C_ACK; // end of document
 	    }
 
          }
@@ -177,7 +177,7 @@ bool xmodem_transmit_process(const uint32_t current_time)
 
 #endif
 
-      case XMODEM_TRANSMIT_WAIT_FOR_TRANSFER_ACK:
+      case XMODEM_TRANSMIT_WAIT_FOR_C_ACK:
       {
           if (current_time > (stopwatch + TRANSFER_ACK_TIMEOUT))
           {
@@ -194,7 +194,7 @@ bool xmodem_transmit_process(const uint32_t current_time)
                 {
                    if (ACK == inbound)
                    {
-                       transmit_state = XMODEM_TRANSMIT_TRANSFER_ACK_RECEIVED;
+                       transmit_state = XMODEM_TRANSMIT_C_ACK_RECEIVED;
                    }
                    else if (NACK == inbound)
                    {
@@ -240,7 +240,7 @@ bool xmodem_transmit_process(const uint32_t current_time)
 
 
 
-      case XMODEM_TRANSMIT_TRANSFER_ACK_RECEIVED:
+      case XMODEM_TRANSMIT_C_ACK_RECEIVED:
       {
 	  if (payload_buffer_position >= payload_size)
           {
