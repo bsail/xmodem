@@ -101,13 +101,9 @@ All transitions are covered via unit tests.
 
 <img src="documentation/xmodem_receive_fsm.png"  />
 
-## Integration Tests
+## High-level Tests
 Open a terminal
 ```bash
-ant socat
+ant tests_system
 ```
 
-Open a second terminal
-```bash
-tbd
-```
