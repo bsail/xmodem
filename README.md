@@ -2,6 +2,7 @@ Embedded XModem
 ===============
 
 # Integrator Guide
+For integrators looking to build just libXMODEM with dependencies met by integrators build environment.
 
 Setup Environment - Ubuntu 16.10
 --------------------------------
@@ -9,7 +10,7 @@ Setup Environment - Ubuntu 16.10
 sudo apt-get install build-essential socat lrzsz minicom ant git libgtest-dev cmake
 ```
 
-Build and install libXMODEM
+Build and install libXMODEM 
 --------------------------------
 ```bash
 git clone git@github.com:caseykelso/xmodem.git
@@ -21,6 +22,7 @@ make install -j8
 ```
 
 # Development
+For developers looking to extend, bug fix, build, and test libXMODEM with dependencies and test infrastructure included in the source tree.
 
 Setup Environment - OSX
 ------------------------
@@ -48,13 +50,13 @@ repo init -m xmodem.xml -u git://github.com/caseykelso/xmodem.git
 repo sync
 ```
 
-Build Application and All Dependencies
+Build Application - build all dependencies
 -----------------
 ```bash
 ant all_app
 ```
 
-Build Library - HLOS and All Dependencies
+Build Library - for HLOS targets - build all dependencies
 ------------------
 ```bash
 ant all_lib
