@@ -122,7 +122,7 @@ static bool receiver_read_data(const uint32_t requested_size, uint8_t *buffer, u
 
 }
 
-static bool receiver_write_data(const uint32_t requested_size, uint8_t *buffer, uint32_t *bytes_written)
+static bool receiver_write_data(const uint32_t requested_size, uint8_t *buffer, bool *write_success)
 {
    bool result = false;
    std::string str((char*)buffer);
@@ -193,10 +193,10 @@ void receive(std::string port_name, std::string baud, std::string file)
 
 
    std::vector<char> buffer_receive;
-   xmodem_receiver_set_callback_write(&receiver_write_data);
-   xmodem_receiver_set_callback_read(&receiver_read_data);
-   xmodem_receiver_set_callback_is_outbound_full(&receiver_is_outbound_full);
-   xmodem_receiver_set_callback_is_inbound_empty(&receiver_is_inbound_empty);
+   xmodem_receive_set_callback_write(&receiver_write_data);
+   xmodem_receive_set_callback_read(&receiver_read_data);
+   xmodem_receive_set_callback_is_outbound_full(&receiver_is_outbound_full);
+   xmodem_receive_set_callback_is_inbound_empty(&receiver_is_inbound_empty);
    padbuffer(buffer_receive);
 
    // this works as std::vector guarantees contiguous memory allocation
