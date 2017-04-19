@@ -7,7 +7,7 @@ For integrators looking to build just libXMODEM with dependencies met by integra
 Setup Environment - Ubuntu 16.10
 --------------------------------
 ```bash
-sudo apt-get install build-essential socat lrzsz minicom ant git libgtest-dev cmake repo
+sudo apt-get install build-essential socat lrzsz minicom ant openjdk-8-jdk git libgtest-dev cmake repo 
 ```
 
 Build and install libXMODEM
@@ -34,7 +34,7 @@ brew install ant git Caskroom/versions/java7 socat lrzsz minicom
 Setup Environment - Ubuntu 16.10
 ---------------------------------
 ```bash
-sudo apt-get install build-essential socat lrzsz minicom ant git repo
+sudo apt-get install build-essential socat lrzsz minicom ant git repo openjdk-8-jdk
 ```
 
 Features
