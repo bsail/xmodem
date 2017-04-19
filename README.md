@@ -37,9 +37,6 @@ Setup Environment - Ubuntu 16.10
 sudo apt-get install build-essential socat lrzsz minicom ant git repo openjdk-8-jdk
 ```
 
-Features
---------
-* small memory and storage footprint
 
 Get Code
 -----------------
