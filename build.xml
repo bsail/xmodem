@@ -26,6 +26,7 @@
 <target name="cmake">
   <exec executable="./configure" dir="${cmake.dir}" failonerror="true">
     <arg value="--prefix=${install.host.dir}" />
+    <arg value="--no-system-zlib" />
   </exec>
   <exec executable="make" dir="${cmake.dir}" failonerror="true">
     <arg value="install" />
