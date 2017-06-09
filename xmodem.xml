@@ -8,7 +8,7 @@
    <project name="caseykelso/ringbuffer"                    remote="github"  path="ringbuffer" revision="master" />  
    <project name="caseykelso/xmodem"                        remote="github"  path="." revision="master" />
    <project name="google/googletest.git"                    remote="github"  path="gtest"  clone-depth="1"   revision="master"  />
-   <project name="Kitware/CMake.git"                        remote="github"  path="cmake"  clone-depth="1"   revision="v3.8.2"  />
+   <project name="Kitware/CMake.git"                        remote="github"  path="cmake"  clone-depth="1"   revision="tags/v3.8.2"  />
    <project name="docopt/docopt.cpp"                        remote="github"  path="docopt" clone-depth="1" revision="master" />
    <project name="chriskohlhoff/asio"                       remote="github"  path="asio"   clone-depth="1" revision="master" />
 </manifest>
