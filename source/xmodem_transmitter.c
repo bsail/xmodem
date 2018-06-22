@@ -8,6 +8,7 @@
 #include "xmodem.h"
 #include "xmodem_transmitter.h"
 #include <config.h>
+#include <subsystems/misc/sail_string.h>
 
 // private functions
 static uint8_t (*callback_is_inbound_empty)();
@@ -135,11 +136,27 @@ uint8_t xmodem_transmit_process(const uint32_t current_time)
 	    current_packet.preamble      = SOH;
 	    current_packet.id            = current_packet_id;
 	    current_packet.id_complement = 0xFF - current_packet_id;
-	    memcpy(current_packet.data, payload_buffer+payload_buffer_position, XMODEM_BLOCK_SIZE);
-            xmodem_calculate_crc(current_packet.data, XMODEM_BLOCK_SIZE, &current_packet.crc);      
+	    // sail_memcpy(current_packet.data, payload_buffer+payload_buffer_position, XMODEM_BLOCK_SIZE);
+            // xmodem_calculate_crc(current_packet.data, XMODEM_BLOCK_SIZE, &current_packet.crc);  
+            xmodem_calculate_crc((uint8_t*)&(payload_buffer[payload_buffer_position]), XMODEM_BLOCK_SIZE, &current_packet.crc);
 
             /* write to output buffer */ 
-            callback_write_data(sizeof(current_packet), (uint8_t*)&current_packet, &write_success);  
+            // callback_write_data(sizeof(current_packet), (uint8_t*)&current_packet, &write_success);  
+            /*
+              uint8_t  preamble;
+  uint8_t  id;
+  uint8_t  id_complement;
+  uint8_t  data[XMODEM_BLOCK_SIZE];
+  uint16_t crc;
+  */
+            callback_write_data(1, (uint8_t*)&(current_packet.preamble), &write_success);
+            callback_write_data(1, (uint8_t*)&(current_packet.id), &write_success);
+            callback_write_data(1, (uint8_t*)&(current_packet.id_complement), &write_success);
+            callback_write_data(XMODEM_BLOCK_SIZE, (uint8_t*)&(payload_buffer[payload_buffer_position]), &write_success);
+            uint8_t crc_high = (current_packet.crc)>>8;
+            uint8_t crc_low =  (current_packet.crc)&(0x00FF);
+            callback_write_data(1, (uint8_t*)&(crc_high), &write_success);
+            callback_write_data(1, (uint8_t*)&(crc_low), &write_success);
 
             if (write_success) // check if the output buffer had room
             {
@@ -166,7 +183,7 @@ uint8_t xmodem_transmit_process(const uint32_t current_time)
          static uint8_t   outbound       = SOH;
          static uint32_t  delivered_size = 0;
 
-        if (!callback_is_outbound_full())END_OF_TRANSFER_RECE
+        if (!callback_is_outbound_full())//END_OF_TRANSFER_RECE
         {
             callback_write_data(1, &outbound, &delivered_size);
 
