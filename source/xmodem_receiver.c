@@ -7,11 +7,12 @@
 #include <string.h>
 #include "xmodem.h"
 #include "xmodem_receiver.h"
+#include <config.h>
 
-static bool (*callback_is_inbound_empty)();
-static bool (*callback_is_outbound_full)();
-static bool (*callback_read_data)(const uint32_t requested_size, uint8_t *buffer, uint32_t *returned_size);
-static bool (*callback_write_data)(const uint32_t requested_size, uint8_t *buffer, bool *write_status);
+static uint8_t (*callback_is_inbound_empty)();
+static uint8_t (*callback_is_outbound_full)();
+static uint8_t (*callback_read_data)(const uint32_t requested_size, uint8_t *buffer, uint32_t *returned_size);
+static uint8_t (*callback_write_data)(const uint32_t requested_size, uint8_t *buffer, uint8_t *write_status);
 
 static xmodem_receive_state_t receive_state;
 
@@ -32,10 +33,10 @@ xmodem_receive_state_t xmodem_receive_state()
 }
 
 
-bool xmodem_receive_init()
+uint8_t xmodem_receive_init()
 {
   
-   bool result          = false; 
+   uint8_t result          = false; 
    receive_state        = XMODEM_RECEIVE_UNKNOWN;
 
    if (0 != callback_is_inbound_empty &&
@@ -50,7 +51,7 @@ bool xmodem_receive_init()
    return result;
 }
 
-bool xmodem_receive_cleanup()
+uint8_t xmodem_receive_cleanup()
 {
    callback_is_inbound_empty = 0;
    callback_is_outbound_full = 0;
@@ -67,7 +68,7 @@ bool xmodem_receive_cleanup()
 }
 
 
-bool xmodem_receive_process(const uint32_t current_time)
+uint8_t xmodem_receive_process(const uint32_t current_time)
 {
    static uint32_t stopwatch = 0;
 
@@ -189,22 +190,22 @@ bool xmodem_receive_process(const uint32_t current_time)
 
 
 
-void xmodem_receive_set_callback_write(bool (*callback)(const uint32_t requested_size, uint8_t *buffer, bool *write_status))
+void xmodem_receive_set_callback_write(uint8_t (*callback)(const uint32_t requested_size, uint8_t *buffer, uint8_t *write_status))
 {
    callback_write_data = callback;
 }
 
-void xmodem_receive_set_callback_read(bool (*callback)(const uint32_t requested_size, uint8_t *buffer, uint32_t *returned_size))
+void xmodem_receive_set_callback_read(uint8_t (*callback)(const uint32_t requested_size, uint8_t *buffer, uint32_t *returned_size))
 {
    callback_read_data = callback;
 }
 
-void xmodem_receive_set_callback_is_outbound_full(bool (*callback)())
+void xmodem_receive_set_callback_is_outbound_full(uint8_t (*callback)())
 {
    callback_is_outbound_full = callback;
 }
 
-void xmodem_receive_set_callback_is_inbound_empty(bool (*callback)())
+void xmodem_receive_set_callback_is_inbound_empty(uint8_t (*callback)())
 {
    callback_is_inbound_empty = callback;
 }

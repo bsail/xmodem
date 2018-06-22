@@ -17,14 +17,14 @@ enum XMODEM_RECEIVE_STATES {XMODEM_RECEIVE_INITIAL,
 
 xmodem_receive_state_t xmodem_receive_state();
 
-bool xmodem_receive_init();
-bool xmodem_receive_process(const uint32_t current_time);
-bool xmodem_receive_cleanup();
+uint8_t xmodem_receive_init();
+uint8_t xmodem_receive_process(const uint32_t current_time);
+uint8_t xmodem_receive_cleanup();
 
-void xmodem_receive_set_callback_write(bool (*callback)(const uint32_t requested_size, uint8_t *buffer, bool *write_status));
-void xmodem_receive_set_callback_read(bool (*callback)(const uint32_t requested_size, uint8_t *buffer, uint32_t *returned_size));
-void xmodem_receive_set_callback_is_outbound_full(bool (*callback)());
-void xmodem_receive_set_callback_is_inbound_empty(bool (*callback)());
+void xmodem_receive_set_callback_write(uint8_t (*callback)(const uint32_t requested_size, uint8_t *buffer, uint8_t *write_status));
+void xmodem_receive_set_callback_read(uint8_t (*callback)(const uint32_t requested_size, uint8_t *buffer, uint32_t *returned_size));
+void xmodem_receive_set_callback_is_outbound_full(uint8_t (*callback)());
+void xmodem_receive_set_callback_is_inbound_empty(uint8_t (*callback)());
 
 
 #endif

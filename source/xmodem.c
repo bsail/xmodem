@@ -6,14 +6,14 @@
 #include <stdbool.h>
 #include <string.h>
 #include "xmodem.h"
+#include <config.h>
 
-
-bool xmodem_calculate_crc(const uint8_t *data, const uint32_t size, uint16_t *result)
+uint8_t xmodem_calculate_crc(const uint8_t *data, const uint32_t size, uint16_t *result)
 {
 
    uint16_t crc    = 0x0;
    uint32_t count  = size;
-   bool     status = false;
+   uint8_t     status = false;
    uint8_t  i      = 0;
 
    if (0 != data && 0 != result)
@@ -48,10 +48,10 @@ bool xmodem_calculate_crc(const uint8_t *data, const uint32_t size, uint16_t *re
    return status;
 }
 
-bool xmodem_verify_packet(const xmodem_packet_t packet, uint8_t expected_packet_id)
+uint8_t xmodem_verify_packet(const xmodem_packet_t packet, uint8_t expected_packet_id)
 {
-    bool     status         = false;
-    bool     crc_status     = false;
+    uint8_t     status         = false;
+    uint8_t     crc_status     = false;
     uint16_t calculated_crc = 0;
 
     crc_status = xmodem_calculate_crc(packet.data, XMODEM_BLOCK_SIZE, &calculated_crc);

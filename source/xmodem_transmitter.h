@@ -17,12 +17,12 @@ enum XMODEM_TRANSMIT_STATES {XMODEM_TRANSMIT_INITIAL,               XMODEM_TRANS
 
 xmodem_transmit_state_t xmodem_transmit_state();
 
-bool xmodem_transmit_init(uint8_t *buffer, uint32_t size);
-bool xmodem_transmit_process(const uint32_t current_time);
-bool xmodem_transmitter_cleanup();
-void xmodem_transmitter_set_callback_write(bool (*callback)(const uint32_t requested_size, uint8_t *buffer, bool *write_status));
-void xmodem_transmitter_set_callback_read(bool (*callback)(const uint32_t requested_size, uint8_t *buffer, uint32_t *returned_size));
-void xmodem_transmitter_set_callback_is_outbound_full(bool (*callback)());
-void xmodem_transmitter_set_callback_is_inbound_empty(bool (*callback)());
+uint8_t xmodem_transmit_init(uint8_t *buffer, uint32_t size);
+uint8_t xmodem_transmit_process(const uint32_t current_time);
+uint8_t xmodem_transmitter_cleanup();
+void xmodem_transmitter_set_callback_write(uint8_t (*callback)(const uint32_t requested_size, uint8_t *buffer, uint8_t *write_status));
+void xmodem_transmitter_set_callback_read(uint8_t (*callback)(const uint32_t requested_size, uint8_t *buffer, uint32_t *returned_size));
+void xmodem_transmitter_set_callback_is_outbound_full(uint8_t (*callback)());
+void xmodem_transmitter_set_callback_is_inbound_empty(uint8_t (*callback)());
 
 #endif

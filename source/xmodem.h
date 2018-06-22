@@ -19,8 +19,8 @@ typedef struct
   uint16_t crc;
 } xmodem_packet_t;
 
-bool xmodem_verify_packet(const xmodem_packet_t packet, uint8_t expected_packet_id);
-bool xmodem_calculate_crc(const uint8_t *data, const uint32_t size, uint16_t *result);
+uint8_t xmodem_verify_packet(const xmodem_packet_t packet, uint8_t expected_packet_id);
+uint8_t xmodem_calculate_crc(const uint8_t *data, const uint32_t size, uint16_t *result);
 
 
 #endif
