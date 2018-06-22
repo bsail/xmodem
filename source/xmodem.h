@@ -1,4 +1,8 @@
-#pragma once
+#ifndef xmodem_h
+#define xmodem_h
+// #pragma once
+
+#include <inttypes.h>
 
 enum XMODEM_CONTROL_CHARACTERS {SOH = 0x01, EOT = 0x04, ACK = 0x06, NACK = 0x15, ETB = 0x17, CAN = 0x18, C = 0x43}; 
 
@@ -19,3 +23,4 @@ bool xmodem_verify_packet(const xmodem_packet_t packet, uint8_t expected_packet_
 bool xmodem_calculate_crc(const uint8_t *data, const uint32_t size, uint16_t *result);
 
 
+#endif

@@ -1,4 +1,8 @@
-#pragma once
+#ifndef xmodem_receiver_h
+#define xmodem_receiver_h
+// #pragma once
+
+#include <inttypes.h>
 
 enum XMODEM_RECEIVE_STATES {XMODEM_RECEIVE_INITIAL,                   
                             XMODEM_RECEIVE_SEND_C,                    XMODEM_RECEIVE_WAIT_FOR_ACK,
@@ -7,7 +11,8 @@ enum XMODEM_RECEIVE_STATES {XMODEM_RECEIVE_INITIAL,
                             XMODEM_RECEIVE_ACK_SUCCESS,               XMODEM_RECEIVE_TRANSFER_COMPLETE,
                             XMODEM_RECEIVE_READ_BLOCK_SUCCESS,        XMODEM_RECEIVE_BLOCK_INVALID,
                             XMODEM_RECEIVE_BLOCK_ACK,                 XMODEM_RECEIVE_BLOCK_VALID,
-                            XMODEM_RECEIVE_UNKNOWN } typedef xmodem_receive_state_t;
+                            XMODEM_RECEIVE_UNKNOWN };
+ typedef enum XMODEM_RECEIVE_STATES xmodem_receive_state_t;
 
 
 xmodem_receive_state_t xmodem_receive_state();
@@ -22,3 +27,4 @@ void xmodem_receive_set_callback_is_outbound_full(bool (*callback)());
 void xmodem_receive_set_callback_is_inbound_empty(bool (*callback)());
 
 
+#endif

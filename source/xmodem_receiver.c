@@ -1,3 +1,7 @@
+/* This is a personal academic project. Dear PVS-Studio, please check it.
+ * PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+ */
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
@@ -17,9 +21,9 @@ static uint32_t        returned_size           = 0;
 static uint8_t         inbound                 = 0;
 static uint8_t         *payload_buffer         = 0;
 static uint32_t        payload_buffer_position = 0;
-static uint32_t        payload_size            = 0;
-static uint8_t         current_packet_id       = 0;
-static xmodem_packet_t current_packet;
+// static uint32_t        payload_size            = 0;
+// static uint8_t         current_packet_id       = 0;
+// static xmodem_packet_t current_packet;
 
 
 xmodem_receive_state_t xmodem_receive_state()

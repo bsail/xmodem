@@ -1,5 +1,8 @@
-#pragma once
+#ifndef xmodem_transmitter_h
+#define xmodem_transmitter_h
+// #pragma once
 
+#include <inttypes.h>
 
 enum XMODEM_TRANSMIT_STATES {XMODEM_TRANSMIT_INITIAL,               XMODEM_TRANSMIT_WAIT_FOR_C, 
                              XMODEM_TRANSMIT_WAIT_FOR_C_ACK,        XMODEM_TRANSMIT_WRITE_BLOCK_FAILED,
@@ -9,7 +12,8 @@ enum XMODEM_TRANSMIT_STATES {XMODEM_TRANSMIT_INITIAL,               XMODEM_TRANS
                              XMODEM_TRANSMIT_TIMEOUT_EOT,           XMODEM_TRANSMIT_WRITE_BLOCK_TIMEOUT,
                              XMODEM_TRANSMIT_WRITE_ETB,             XMODEM_TRANSMIT_WAIT_FOR_ETB_ACK,
                              XMODEM_TRANSMIT_TIMEOUT_ETB,
-                             XMODEM_TRANSMIT_WAIT_WRITE_BLOCK,      XMODEM_TRANSMIT_UNKNOWN } typedef xmodem_transmit_state_t;
+                             XMODEM_TRANSMIT_WAIT_WRITE_BLOCK,      XMODEM_TRANSMIT_UNKNOWN };
+ typedef enum XMODEM_TRANSMIT_STATES xmodem_transmit_state_t;
 
 xmodem_transmit_state_t xmodem_transmit_state();
 
@@ -21,3 +25,4 @@ void xmodem_transmitter_set_callback_read(bool (*callback)(const uint32_t reques
 void xmodem_transmitter_set_callback_is_outbound_full(bool (*callback)());
 void xmodem_transmitter_set_callback_is_inbound_empty(bool (*callback)());
 
+#endif
