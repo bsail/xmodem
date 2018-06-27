@@ -4,7 +4,7 @@
 
 #include <inttypes.h>
 
-enum XMODEM_CONTROL_CHARACTERS {SOH = 0x01, EOT = 0x04, ACK = /*'R'*/0x06, NACK = 0x15, ETB = 0x17, CAN = 0x18, C = 0x43}; 
+enum XMODEM_CONTROL_CHARACTERS {SOH = 0x01, EOT = 0x04, ACK = /*'R'*/0x06, NACK = /*'N'*/0x15, ETB = 0x17, CAN = 0x18, C = 0x43}; 
 
 #define XMODEM_BLOCK_SIZE 128
 

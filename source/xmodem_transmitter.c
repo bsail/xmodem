@@ -57,7 +57,7 @@ uint8_t xmodem_transmit_init(uint8_t *buffer, uint32_t size)
        0 != buffer &&
        0 == size % 128)
    {
-      transmit_state          = XMODEM_TRANSMIT_INITIAL;
+      transmit_state          = XMODEM_TRANSMIT_WRITE_BLOCK;//XMODEM_TRANSMIT_INITIAL;
       result                  = true;
       payload_size            = size;
       payload_buffer          = buffer;
@@ -66,6 +66,10 @@ uint8_t xmodem_transmit_init(uint8_t *buffer, uint32_t size)
       write_block_timer       = 0;
       write_etb_retries       = 0;
       memset(&current_packet, 0, sizeof(xmodem_packet_t));
+      
+      current_packet_id       = 1;
+      payload_buffer_position = 0; 
+      // write_block_timer       = current_time;
    }
 
    return result;
@@ -243,6 +247,8 @@ uint8_t xmodem_transmit_process(const uint32_t current_time)
             transmit_state    = XMODEM_TRANSMIT_WRITE_BLOCK;
             write_block_timer = current_time;
             ++write_block_retries;
+            current_packet_id--;
+            payload_buffer_position = payload_buffer_position - XMODEM_BLOCK_SIZE;
           }
           break;
       }
@@ -306,7 +312,7 @@ uint8_t xmodem_transmit_process(const uint32_t current_time)
                 {
                    if (ACK == inbound)
                    {
-                       transmit_state = XMODEM_TRANSMIT_WRITE_ETB;
+                       transmit_state = XMODEM_TRANSMIT_COMPLETE;//XMODEM_TRANSMIT_WRITE_ETB;
                    }
                    else if (NACK == inbound)
                    {
