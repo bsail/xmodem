@@ -24,5 +24,6 @@ void xmodem_transmitter_set_callback_write(uint8_t (*callback)(const uint32_t re
 void xmodem_transmitter_set_callback_read(uint8_t (*callback)(const uint32_t requested_size, uint8_t *buffer, uint32_t *returned_size));
 void xmodem_transmitter_set_callback_is_outbound_full(uint8_t (*callback)());
 void xmodem_transmitter_set_callback_is_inbound_empty(uint8_t (*callback)());
+void xmodem_transmitter_set_callback_get_buffer(uint8_t (*callback)(const uint32_t position, uint8_t *buffer));
 
 #endif

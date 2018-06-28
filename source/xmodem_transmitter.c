@@ -15,6 +15,7 @@ static uint8_t (*callback_is_inbound_empty)();
 static uint8_t (*callback_is_outbound_full)();
 static uint8_t (*callback_read_data)(const uint32_t requested_size, uint8_t *buffer, uint32_t *returned_size);
 static uint8_t (*callback_write_data)(const uint32_t requested_size, uint8_t *buffer, uint8_t *write_success);
+static uint8_t (*callback_get_buffer)(const uint32_t position, uint8_t *buffer);
 
 
 // private variables
@@ -38,6 +39,8 @@ static uint32_t        write_block_timer             = 0;
 static uint8_t         write_etb_retries             = 0;
 static xmodem_packet_t current_packet;
 
+static uint8_t internal_buffer[XMODEM_BLOCK_SIZE];
+
 
 xmodem_transmit_state_t xmodem_transmit_state()
 {
@@ -55,6 +58,7 @@ uint8_t xmodem_transmit_init(uint8_t *buffer, uint32_t size)
        0 != callback_read_data &&
        0 != callback_write_data &&
        0 != buffer &&
+       0 != callback_get_buffer &&
        0 == size % 128)
    {
       transmit_state          = XMODEM_TRANSMIT_WRITE_BLOCK;//XMODEM_TRANSMIT_INITIAL;
@@ -82,6 +86,7 @@ uint8_t xmodem_transmitter_cleanup()
    callback_is_outbound_full = 0;
    callback_read_data        = 0;
    callback_write_data       = 0;
+   callback_get_buffer       = 0;
    transmit_state            = XMODEM_TRANSMIT_UNKNOWN; 
    payload_buffer_position   = 0;
    payload_buffer            = 0;
@@ -141,8 +146,10 @@ uint8_t xmodem_transmit_process(const uint32_t current_time)
 	    current_packet.id            = current_packet_id;
 	    current_packet.id_complement = 0xFF - current_packet_id;
 	    // sail_memcpy(current_packet.data, payload_buffer+payload_buffer_position, XMODEM_BLOCK_SIZE);
-            // xmodem_calculate_crc(current_packet.data, XMODEM_BLOCK_SIZE, &current_packet.crc);  
-            xmodem_calculate_crc((uint8_t*)&(payload_buffer[payload_buffer_position]), XMODEM_BLOCK_SIZE, &current_packet.crc);
+            // xmodem_calculate_crc(current_packet.data, XMODEM_BLOCK_SIZE, &current_packet.crc);
+            callback_get_buffer(payload_buffer_position, internal_buffer);
+            xmodem_calculate_crc(internal_buffer, XMODEM_BLOCK_SIZE, &current_packet.crc);
+            // xmodem_calculate_crc((uint8_t*)&(payload_buffer[payload_buffer_position]), XMODEM_BLOCK_SIZE, &current_packet.crc);
 
             /* write to output buffer */ 
             // callback_write_data(sizeof(current_packet), (uint8_t*)&current_packet, &write_success);  
@@ -156,7 +163,8 @@ uint8_t xmodem_transmit_process(const uint32_t current_time)
             callback_write_data(1, (uint8_t*)&(current_packet.preamble), &write_success);
             callback_write_data(1, (uint8_t*)&(current_packet.id), &write_success);
             callback_write_data(1, (uint8_t*)&(current_packet.id_complement), &write_success);
-            callback_write_data(XMODEM_BLOCK_SIZE, (uint8_t*)&(payload_buffer[payload_buffer_position]), &write_success);
+            callback_write_data(XMODEM_BLOCK_SIZE, internal_buffer, &write_success);
+            // callback_write_data(XMODEM_BLOCK_SIZE, (uint8_t*)&(payload_buffer[payload_buffer_position]), &write_success);
             uint8_t crc_high = (current_packet.crc)>>8;
             uint8_t crc_low =  (current_packet.crc)&(0x00FF);
             callback_write_data(1, (uint8_t*)&(crc_high), &write_success);
@@ -436,6 +444,10 @@ void xmodem_transmitter_set_callback_is_inbound_empty(uint8_t (*callback)())
 }
 
 
+void xmodem_transmitter_set_callback_get_buffer(uint8_t (*callback)(const uint32_t position, uint8_t *buffer))
+{
+  callback_get_buffer = callback;
+}
 
 
 
