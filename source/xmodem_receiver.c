@@ -16,6 +16,9 @@ static uint8_t(*callback_read_data) (const uint32_t requested_size,
                                      uint32_t * returned_size);
 static uint8_t(*callback_write_data) (const uint32_t requested_size,
                                       uint8_t * buffer, uint8_t * write_status);
+static uint8_t(*callback_set_buffer) (const uint32_t position,
+                                      uint8_t * buffer);
+
 
 static xmodem_receive_state_t receive_state;
 
@@ -42,6 +45,7 @@ uint8_t xmodem_receive_init()
 
   if (0 != callback_is_inbound_empty &&
       0 != callback_is_outbound_full &&
+      0 != callback_set_buffer &&
       0 != callback_read_data && 0 != callback_write_data) {
     receive_state = XMODEM_RECEIVE_INITIAL;
     result = true;
@@ -199,4 +203,11 @@ void xmodem_receive_set_callback_is_outbound_full(uint8_t(*callback) ())
 void xmodem_receive_set_callback_is_inbound_empty(uint8_t(*callback) ())
 {
   callback_is_inbound_empty = callback;
+}
+
+void xmodem_receive_set_callback_set_buffer(uint8_t(*callback)
+                                                (const uint32_t position,
+                                                 uint8_t * buffer))
+{
+  callback_set_buffer = callback;
 }

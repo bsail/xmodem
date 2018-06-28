@@ -31,5 +31,8 @@ xmodem_receive_set_callback_read(uint8_t(*callback)
                                   uint8_t * buffer, uint32_t * returned_size));
 void xmodem_receive_set_callback_is_outbound_full(uint8_t(*callback) ());
 void xmodem_receive_set_callback_is_inbound_empty(uint8_t(*callback) ());
+void xmodem_receive_set_callback_set_buffer(uint8_t(*callback)
+                                                (const uint32_t position,
+                                                 uint8_t * buff));
 
 #endif
