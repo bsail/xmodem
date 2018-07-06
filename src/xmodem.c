@@ -6,7 +6,6 @@
 #include <stdbool.h>
 #include <string.h>
 #include "xmodem.h"
-#include <config.h>
 
 uint8_t xmodem_calculate_crc(const uint8_t * data, const uint32_t size,
                              uint16_t * result)

@@ -7,8 +7,6 @@
 #include <string.h>
 #include "xmodem.h"
 #include "xmodem_transmitter.h"
-#include <config.h>
-#include <subsystems/misc/sail_string.h>
 
 // private functions
 static uint8_t(*callback_is_inbound_empty) ();

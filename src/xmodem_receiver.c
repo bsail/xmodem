@@ -7,7 +7,6 @@
 #include <string.h>
 #include "xmodem.h"
 #include "xmodem_receiver.h"
-#include <config.h>
 
 static uint8_t(*callback_is_inbound_empty) ();
 static uint8_t(*callback_is_outbound_full) ();
