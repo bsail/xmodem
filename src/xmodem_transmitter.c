@@ -328,7 +328,7 @@ uint8_t xmodem_transmit_process(const uint32_t current_time)
       } else {
         transmit_state = XMODEM_TRANSMIT_COMPLETE;
       }
-    }
+    }//FALL THROUGH
 
   case XMODEM_TRANSMIT_COMPLETE:
     {

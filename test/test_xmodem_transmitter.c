@@ -25,7 +25,7 @@ static uint8_t  transmitter_outbound_buffer[OUTBOUND_BUFFER_SIZE];
 static uint8_t transmitter_outbound_buffer_position = 0;
 static uint32_t transmitter_requested_outbound_size = 0;
 static uint8_t  transmitter_block_counter           = 0;
-static uint8_t  transmitter_tmp                     = 0;
+// static uint8_t  transmitter_tmp                     = 0;
 static uint8_t  transmitter_buffer[BUFFER_SIZE];
 static uint32_t transmitter_buffer_position         = 0;
 static uint32_t transmitter_timer                   = 0;
@@ -35,6 +35,7 @@ static uint8_t transmitter_get_buffer(const uint32_t position,
                                       uint8_t * buffer)
 {
   memcpy(buffer,&(transmitter_buffer[position]),XMODEM_BLOCK_SIZE);
+  return 0;
 }
 
 static uint8_t transmitter_write_data(const uint32_t requested_size, uint8_t *buffer, uint8_t *write_success)

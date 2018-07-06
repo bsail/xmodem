@@ -19,15 +19,15 @@ static uint32_t receiver_requested_inbound_size  = 0;
 
 static uint8_t     receiver_outbound_full           = false;
 static uint8_t     receiver_result_outbound_buffer  = false;
-static uint32_t receiver_returned_outbound_size  = 0;
+// static uint32_t receiver_returned_outbound_size  = 0;
 static uint8_t  receiver_outbound_buffer[OUTBOUND_BUFFER_SIZE];
 static uint32_t receiver_requested_outbound_size = 0;
-static uint8_t  receiver_block_counter           = 0;
-static uint8_t  receiver_tmp                     = 0;
+// static uint8_t  receiver_block_counter           = 0;
+// static uint8_t  receiver_tmp                     = 0;
 static uint8_t  receiver_buffer[BUFFER_SIZE];
-static uint32_t receiver_buffer_position         = 0;
-static uint32_t receiver_timer                   = 0;
-static uint8_t  receiver_packet_number           = 0;
+// static uint32_t receiver_buffer_position         = 0;
+// static uint32_t receiver_timer                   = 0;
+// static uint8_t  receiver_packet_number           = 0;
 
 static uint8_t receiver_set_buffer_file(const uint32_t position,
                                            uint8_t * buffer)
@@ -140,7 +140,7 @@ void test_XMODEM_RECEIVE_ABORT_TRANSFER(void)
   TEST_ASSERT_EQUAL(true, xmodem_receive_init());
   TEST_ASSERT_EQUAL(XMODEM_RECEIVE_INITIAL, xmodem_receive_state());
 
-  uint32_t timestamp = 0;
+  // uint32_t timestamp = 0;
 
   //TODO: Implement unit tests here
 
