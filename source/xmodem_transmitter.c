@@ -277,7 +277,6 @@ uint8_t xmodem_transmit_process(const uint32_t current_time)
           }
         }
       }
-
       break;
     }
 
