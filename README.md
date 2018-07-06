@@ -2,7 +2,8 @@ Embedded XModem
 ===============
 
 # Development
-For developers looking to extend, bug fix, build, and test libXMODEM with dependencies and test infrastructure included in the source tree. This version differs from original version by [caseykelso](https://github.com/caseykelso/xmodem): it uses Ceedling build system with Unity tests; it also has several changes in transmitter state machine in order to properly work with `rz` utility.
+For developers looking to extend, bug fix, build, and test libXMODEM with dependencies and test infrastructure included in the source tree. This version differs from original version by [caseykelso](https://github.com/caseykelso/xmodem): it uses Ceedling build system with Unity tests.
+This library has several changes in transmitter state machine in order to properly work with `rz` utility: it did not wait for 'C', it starts transmission from the beginning.
 
 
 Setup Environment - Ubuntu 16.04/18.04
