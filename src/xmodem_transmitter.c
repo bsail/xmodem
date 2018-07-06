@@ -57,7 +57,7 @@ uint8_t xmodem_transmit_init(uint32_t size)
       0 != callback_is_outbound_full &&
       0 != callback_read_data &&
       0 != callback_write_data && 0 != callback_get_buffer && 0 == size % 128) {
-    transmit_state = XMODEM_TRANSMIT_WRITE_BLOCK; //XMODEM_TRANSMIT_INITIAL;
+    transmit_state = XMODEM_TRANSMIT_INITIAL;
     result = true;
     payload_size = size;
     payload_buffer_position = 0;
@@ -103,7 +103,8 @@ uint8_t xmodem_transmit_process(const uint32_t current_time)
 
   case XMODEM_TRANSMIT_INITIAL:
     {
-      transmit_state = XMODEM_TRANSMIT_WAIT_FOR_C;
+      transmit_state = XMODEM_TRANSMIT_WRITE_BLOCK;//XMODEM_TRANSMIT_WAIT_FOR_C;
+      write_block_timer = current_time;
       break;
     }
 
@@ -219,7 +220,7 @@ uint8_t xmodem_transmit_process(const uint32_t current_time)
         write_block_timer = current_time;
         ++write_block_retries;
         current_packet_id--;
-        payload_buffer_position -= XMODEM_BLOCK_SIZE;
+        // payload_buffer_position -= XMODEM_BLOCK_SIZE;
       }
       break;
     }
