@@ -11,7 +11,6 @@
 uint8_t xmodem_calculate_crc(const uint8_t * data, const uint32_t size,
                              uint16_t * result)
 {
-
   uint16_t crc = 0x0;
   uint32_t count = size;
   uint8_t status = false;
