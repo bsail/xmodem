@@ -3,6 +3,12 @@ Embedded XModem
 
 Fork of original library by [caseykelso](https://github.com/caseykelso/xmodem).
 
+Forked by Nikolay Nerovny, BMSTU, 2018.
+
+Latest version of library:
+
+  https://github.com/bsail/xmodem
+
 # Development
 For developers looking to extend, bug fix, build, and test libXMODEM with dependencies and test infrastructure included in the source tree. This version differs from original version by [caseykelso](https://github.com/caseykelso/xmodem): it uses Ceedling build system with Unity tests.
 This library has several changes in transmitter state machine in order to properly work with `rz` utility: it did not wait for 'C', it starts transmission from the beginning.
@@ -20,8 +26,8 @@ Get Code
 -----------------
 ```bash
 mkdir xmodem
+git clone https://github.com/bsail/xmodem xmodem
 cd xmodem
-git clone https://github.com/bsail/xmodem
 ```
 
 # Tests
@@ -73,3 +79,8 @@ All transitions are NOT YET covered via unit tests.
 
 ## Build Directories
 * /build - Ceedling library build directory
+
+## Additional Directories
+* /documentation - Source of state machine schematics
+* /reference - Reference documentation about xmodem protocol
+
