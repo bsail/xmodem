@@ -1,6 +1,9 @@
 Embedded XModem
 ===============
 
+[![Build Status](https://img.shields.io/travis/bsail/xmodem/master.svg)](https://travis-ci.org/bsail/xmodem)
+[![Coverage Status](https://img.shields.io/coveralls/github/bsail/xmodem/master.svg)](https://coveralls.io/github/bsail/xmodem?branch=master)
+
 Fork of original library by [caseykelso](https://github.com/caseykelso/xmodem).
 
 Forked by Nikolay Nerovny, BMSTU, 2018.
