@@ -34,6 +34,16 @@
   :support:
     - test/support
 
+:flags:
+  :test:
+    :compile:
+      :*:       # add '--O1' to compilation of main.c as part of test builds including main.c
+        - -std=c99
+  :gcov:
+    :compile:
+      :*:       # add '--O1' to compilation of main.c as part of test builds including main.c
+        - -std=c99
+
 :defines:
   # in order to add common defines:
   #  1) remove the trailing [] from the :common: section
@@ -52,7 +62,10 @@
   :enforce_strict_ordering: TRUE
   :plugins:
     - :ignore
+    - :ignore_arg
+    - :array
     - :callback
+    - :return_thru_ptr
   :treat_as:
     uint8:    HEX8
     uint16:   HEX16
@@ -85,6 +98,8 @@
   :load_paths:
     - vendor/ceedling/plugins
   :enabled:
+    # - stdout_gtestlike_tests_report
     - stdout_pretty_tests_report
     - module_generator
+    - gcov
 ...
