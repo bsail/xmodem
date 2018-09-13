@@ -6,6 +6,7 @@ install:
   - mkdir build
   - bundler install
 script:
+  - cd .. && ceedling upgrade xmodem && cd -
   - bundler exec rake travis
 after_success:
   - coveralls-lcov coverage.info

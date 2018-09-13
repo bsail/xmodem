@@ -30,6 +30,7 @@ Get Code
 ```bash
 mkdir xmodem
 git clone https://github.com/bsail/xmodem xmodem
+ceedling upgrade xmodem
 cd xmodem
 ```
 

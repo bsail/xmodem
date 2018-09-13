@@ -1,8 +1,5 @@
-# require 'coveralls'
-# Coveralls.wear!
-# SimpleCov.command_name("test:all")
-
 PROJECT_CEEDLING_ROOT = "vendor/ceedling"
+load "#{PROJECT_CEEDLING_ROOT}/lib/ceedling.rb"
 load "#{PROJECT_CEEDLING_ROOT}/lib/ceedling/rakefile.rb"
 
 # Ceedling.load_project
